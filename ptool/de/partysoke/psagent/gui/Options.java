@@ -30,7 +30,7 @@ implements ActionListener, KeyListener
   private JTextField txt_puser = new JTextField();
   private JTextField txt_ppass = new JTextField();
   private JCheckBox spr = new JCheckBox("Splashscreen aktivieren", conf.getSplash());
-  private JCheckBox sys= new JCheckBox("Icon im Systray anzeigen(nur unter Windows)", conf.getSystray());
+  private JCheckBox sys= new JCheckBox("Icon im Systray anzeigen (nur unter Windows)", conf.getSystray());
   private JCheckBox swi = new JCheckBox("Fenster-Position speichern", conf.getSaveWinInfo());
   private JCheckBox aup= new JCheckBox("Automatischer Upload eigener Events bei Download", conf.getAutoUpdate());
 
@@ -94,6 +94,8 @@ implements ActionListener, KeyListener
 	misc_north_panel.add(new JLabel("\n"), BorderLayout.NORTH);
 	// Layout-Manager für die einzelnen Optionen
 	JPanel misc_opt_panel = new JPanel(new GridLayout(4,1));
+	// Wenn OS != Windows, dann ist Systray deaktiviert
+	if (Base.getOS() != Define.WINDOWS_OS) sys.setEnabled(false); 
 	misc_opt_panel.add(spr);
 	misc_opt_panel.add(sys);
 	misc_opt_panel.add(swi);
