@@ -33,6 +33,7 @@ public class MWnd extends JFrame
   	private DefaultTableCellRenderer renders;
     private JMenu ret_fm;
     private JMenu ret_em;
+    private JMenu ret_lf;
     private Systray systray;
     private boolean systray_active;
     
@@ -103,10 +104,11 @@ public class MWnd extends JFrame
   	    try {
   	        UIManager.setLookAndFeel(this.getLongLF(conf.getLF()));
   	    } catch (Exception e) { 
-  	      new Logger("Look&Feel wurde nicht gefunden, Standard wird verwendet.", true);
+  	      new Logger("Look&Feel wurde nicht gefunden, Standard wird verwendet.");
   	    }
   	    SwingUtilities.updateComponentTreeUI(this);
   	  new Logger("Gew\u00E4hltes Look&Feel: " + conf.getLF(), true);
+  	  this.updateFileMenuLF();
   	}
   
   	/**
@@ -172,27 +174,39 @@ public class MWnd extends JFrame
   	 * @return LongLF
   	 */
   	public String getLongLF(String data) {
-  	    String laf="com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
-  	
+  	    
   	    if (data.equals("motif")) {
-  	        laf="com.sun.java.swing.plaf.motif.MotifLookAndFeel";	
+  	        return "com.sun.java.swing.plaf.motif.MotifLookAndFeel";	
   	    }
   	    else if (data.equals("win")) {
-  	        laf="com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+  	        return "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
   	    }
   	    else if (data.equals("metal")) {
-  	        laf="javax.swing.plaf.metal.MetalLookAndFeel";	
+  	        return "javax.swing.plaf.metal.MetalLookAndFeel";	
   	    }
   	    else if (data.equals("mac")) {
-  	        laf="com.sun.java.swing.plaf.mac.MacLookAndFeel";	
+  	        return "com.sun.java.swing.plaf.mac.MacLookAndFeel";	
   	    }
   	   	else if (data.equals("kunststoff")) {
-  	  	    laf="com.incors.plaf.kunststoff.KunststoffLookAndFeel";	
+  	   	    return "com.incors.plaf.kunststoff.KunststoffLookAndFeel";	
       	}
-
-  	    return laf;	
+  	   	else return "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+	
   	}
   
+  	/**
+  	 * Prüft, ob das angegebene L&F dem aktuellen entspricht 
+  	 * @param data
+  	 * @return isLF
+  	 */
+  	public boolean isLF(String data) {
+  	    if (data.equals(conf.getLF()))
+  	        return true;
+  	   	else 
+  	   	    return false;
+  	}
+  
+
   	/**
   	 * Prüft, ob das L&F laf auf der aktuellen(zur Laufzeit) Plattform verfügbar ist
   	 * @param laf
@@ -310,7 +324,34 @@ public class MWnd extends JFrame
 	    }
 	}
 	
-	
+	/**
+	 * Liest den Status für die L&Fs neu ein, und aktualisiert das Menü
+	 * TODO: mal überarbeiten!!!
+	 */
+	public void updateFileMenuLF() {
+	    this.ret_lf.getItem(0).setSelected(false);
+	    this.ret_lf.getItem(1).setSelected(false);
+	    this.ret_lf.getItem(2).setSelected(false);
+	    this.ret_lf.getItem(3).setSelected(false);
+	    this.ret_lf.getItem(4).setSelected(false);
+	    
+	    if (conf.getLF().equals("metal")) {
+	       this.ret_lf.getItem(0).setSelected(true); 
+	    }
+	    else if (conf.getLF().equals("kunststoff")) {
+	       this.ret_lf.getItem(1).setSelected(true); 
+	    }
+	    else if (conf.getLF().equals("motif")) {
+	        this.ret_lf.getItem(2).setSelected(true);
+	    }
+	    else if (conf.getLF().equals("mac")) {
+	        this.ret_lf.getItem(3).setSelected(true);
+	    }
+	    else if (conf.getLF().equals("win")) {
+	        this.ret_lf.getItem(4).setSelected(true);
+	    }
+	}
+		
     
 	/**
 	 * Schließt das Hauptfenster, und beendet das Programm.
@@ -427,38 +468,42 @@ public class MWnd extends JFrame
 	    // Separator
 	    ret.addSeparator();
   	
-	    // L&F-Wahl - Untemenü
-	    JMenu m = new JMenu("Look&Feel");
-	    m.setMnemonic('L');
+	    // L&F-Wahl - Untermenü
+	    ret_lf = new JMenu("Look&Feel");
+	    ret_lf.setMnemonic('L');
+	    
 	    // Die verschienden L&Fs
-	    mi = new JMenuItem("Standard (Metal)");
+	    mi = new JRadioButtonMenuItem("Standard (Metal)", isLF("metal"));
 	    mi.setEnabled(this.isAvailableLookAndFeel(this.getLongLF("metal")));
 	    mi.addActionListener(listener);
-	    m.add(mi);
+	    ret_lf.add(mi);
+	    
 	    // Die verschienden L&Fs
-	    mi = new JMenuItem("Kunststoff");
+	    mi = new JRadioButtonMenuItem("Kunststoff", isLF("kunststoff"));
 	    mi.setEnabled(this.isAvailableLookAndFeel(this.getLongLF("kunststoff")));
 	    mi.addActionListener(listener);
-	    m.add(mi);
+	    ret_lf.add(mi);
+	    
 	    // Die verschienden L&Fs
-	    mi = new JMenuItem("Motif");
+	    mi = new JRadioButtonMenuItem("Motif", isLF("motif"));
 	    mi.setEnabled(this.isAvailableLookAndFeel(this.getLongLF("motif")));
 	    mi.addActionListener(listener);
-	    m.add(mi);
+	    ret_lf.add(mi);
+	    
 	    // Die verschienden L&Fs
-	    mi = new JMenuItem("Mac");
+	    mi = new JRadioButtonMenuItem("Mac", isLF("mac"));
 	    mi.setEnabled(this.isAvailableLookAndFeel(this.getLongLF("mac")));
 	    mi.addActionListener(listener);
-	    m.add(mi);
+	    ret_lf.add(mi);
   	
 	    // Die verschienden L&Fs
-	    mi = new JMenuItem("Windows");
+	    mi = new JRadioButtonMenuItem("Windows", isLF("win"));
 	    mi.setEnabled(this.isAvailableLookAndFeel(this.getLongLF("win")));
 	    mi.addActionListener(listener);
-	    m.add(mi);
+	    ret_lf.add(mi);
   	
 	    // Untermenü hinzufügen
-	    ret.add(m);
+	    ret.add(ret_lf);
 	    return ret;
 	}
   
