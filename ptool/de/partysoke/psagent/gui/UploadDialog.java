@@ -75,8 +75,15 @@ public class UploadDialog extends JDialog implements ActionListener
 	);
 
 	// Events senden
-	this.th = new UploadThread(this);
-	this.th.start();
+	if (Base.setProxySettings()) {
+	    this.th = new UploadThread(this);
+	    this.th.start();
+	}
+	else {
+	    this.bar.setIndeterminate(false);
+	    this.bar.setString("Abbruch");
+	    this.button.setText("Schlie\u00DFen");
+	}
 	
 	//pack();
   }

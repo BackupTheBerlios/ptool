@@ -56,15 +56,22 @@ public class DownDialog extends JDialog implements ActionListener
 	panel.add(lab, BorderLayout.NORTH);
 	panel.add(bar_panel, BorderLayout.CENTER);
 	
-	// DownLoadThread starten
-	this.th = new DownloadThread(this);
-	this.th.start();
-	
 	//	Ende-Button-Panel
 	JPanel button_panel = new JPanel(new FlowLayout());
 	this.button = new JButton("Abbrechen");
 	this.button.addActionListener(this);
 	button_panel.add(this.button);
+
+	// DownLoadThread starten
+	if (Base.setProxySettings()) {
+	    this.th = new DownloadThread(this);
+		this.th.start();
+	}
+	else {
+	    this.bar.setIndeterminate(false);
+	    this.bar.setString("Abbruch");
+	    this.button.setText("Schlie\u00DFen");
+	}
 	
 	panel.add(button_panel, BorderLayout.SOUTH);
 	this.getRootPane().add(panel, BorderLayout.CENTER);
