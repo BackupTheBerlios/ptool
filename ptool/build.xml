@@ -10,7 +10,6 @@
     	<copy todir="${build}/com">
     		<fileset dir="${src}/com" excludes="**/*.java"/>
     	</copy>
-		<!--<copy file="${src}/TrayIcon12.dll" tofile="${build}/TrayIcon12.dll"/>-->
 		<copy file="${src}/de/partysoke/psagent/gui/images/splash.jpg" tofile="${build}/de/partysoke/psagent/gui/images/splash.jpg"/>
 		<copy file="${src}/de/partysoke/psagent/gui/images/tray.jpg" tofile="${build}/de/partysoke/psagent/gui/images/tray.jpg"/>
 		<copy file="${src}/de/partysoke/psagent/gui/images/icon.jpg" tofile="${build}/de/partysoke/psagent/gui/images/icon.jpg"/>
