@@ -9,17 +9,20 @@ package de.partysoke.psagent.gui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.event.*;
 
 import de.partysoke.psagent.*;
 import de.partysoke.psagent.util.*;
 
 class Options
 extends JDialog
-implements ActionListener, KeyListener
+implements ActionListener, KeyListener, ChangeListener
 {
     private Config conf = Start.getConf();
 	private MWnd wnd;
 	private ButtonGroup group = new ButtonGroup();
+	private ButtonGroup view = new ButtonGroup();
+	private ButtonGroup view_col = new ButtonGroup();
 	private JTextField txt_user = new JTextField();
 	private JTextField txt_pw = new JTextField();
 	private JTextField txt_email = new JTextField();
@@ -34,7 +37,10 @@ implements ActionListener, KeyListener
 	private JCheckBox sys= new JCheckBox("Icon im Systray anzeigen (nur unter Windows)", conf.getSystray());
 	private JCheckBox swi = new JCheckBox("Fenster-Position speichern", conf.getSaveWinInfo());
 	private JCheckBox aup= new JCheckBox("Automatischer Upload eigener Events bei Download", conf.getAutoUpdate());
-
+	private JRadioButton rb;
+	private JRadioButton rb_view_treecol_name;
+	private JRadioButton rb_view_treecol_loc;
+	
 	public Options(MWnd parent)
 	{
 	    super(parent,"Optionen",true);
@@ -91,10 +97,9 @@ implements ActionListener, KeyListener
 	    // Sonstige Optionen
 	    JPanel misc_top_panel = new JPanel(new BorderLayout());
 	
-	    JPanel misc_north_panel = new JPanel(new BorderLayout());
-	    misc_north_panel.add(new JLabel("\n"), BorderLayout.NORTH);
 	    // Layout-Manager für die einzelnen Optionen
-	    JPanel misc_opt_panel = new JPanel(new GridLayout(4,1));
+	    JPanel misc_opt_panel = new JPanel(new GridLayout(5,1));
+	    misc_opt_panel.add(new JLabel()); // Abstandshalter
 	    // Wenn OS != Windows, dann ist Systray deaktiviert
 	    if (Base.getOS() != Define.WINDOWS_OS) sys.setEnabled(false); 
 	    misc_opt_panel.add(spr);
@@ -103,10 +108,18 @@ implements ActionListener, KeyListener
 	    //misc_opt_panel.add(aup);
 	    misc_opt_panel.add(new JLabel());
 	
-	    misc_north_panel.add(misc_opt_panel, BorderLayout.CENTER);
-	
-	    misc_top_panel.add(misc_north_panel, BorderLayout.NORTH);
-	
+	    JPanel misc_view_panel = new JPanel(new GridLayout(1,1));
+	    JPanel misc_view_inner_panel = new JPanel(new GridLayout(4,1));
+	    misc_view_inner_panel.setBorder(BorderFactory.createTitledBorder("Event-Ansicht"));
+	    addViewRadios(misc_view_inner_panel);
+	    // eigentliche sollte es doof aussehen, da GridLayout mit 2 Zeilen initialisiert
+	    // wird und nur eine bekommt, aber so passt es ;-)
+	    misc_view_panel.add(misc_view_inner_panel);
+	    
+
+	    misc_top_panel.add(misc_opt_panel, BorderLayout.NORTH);
+	    misc_top_panel.add(misc_view_panel, BorderLayout.CENTER);
+	    
 	    // In Tabs einfügen
 	    JTabbedPane tabs = new JTabbedPane();
 	    tabs.addTab("Look & Feel", null, lf_top_panel );
@@ -152,6 +165,7 @@ implements ActionListener, KeyListener
      	spr.setToolTipText(Help.OPTIONS_SPLASH);
 
      	this.keyReleased(null);
+     	this.stateChanged(null);
      	
 		//Window-Listener
 		this.addWindowListener(
@@ -277,39 +291,77 @@ implements ActionListener, KeyListener
     
   
 	private void addRadios(JPanel panel) {
-  	
-	    JRadioButton rb1 = new JRadioButton("Standard (Metal)",conf.getLF().equals("metal"));
-	    rb1.setActionCommand(rb1.getText());
-	    rb1.setEnabled(wnd.isAvailableLookAndFeel(wnd.getLongLF("metal")));
-	    group.add(rb1);
-	    panel.add(rb1);
-  	
-	    JRadioButton rb2 = new JRadioButton("Kunststoff",conf.getLF().equals("kunststoff"));
-	    rb2.setActionCommand(rb2.getText());
-	    rb2.setEnabled(wnd.isAvailableLookAndFeel(wnd.getLongLF("kunststoff")));
-	    group.add(rb2);
-	    panel.add(rb2);
-  	
-	    JRadioButton rb3 = new JRadioButton("Motif",conf.getLF().equals("motif"));
-	    rb3.setActionCommand(rb3.getText());
-	    rb3.setEnabled(wnd.isAvailableLookAndFeel(wnd.getLongLF("motif")));
-	    group.add(rb3);
-	    panel.add(rb3);
-  	
-	    JRadioButton rb4 = new JRadioButton("Mac",conf.getLF().equals("mac"));
-	    rb4.setActionCommand(rb4.getText());
-	    rb4.setEnabled(wnd.isAvailableLookAndFeel(wnd.getLongLF("mac")));
-	    group.add(rb4);
-	    panel.add(rb4);
-  	
-	    JRadioButton rb5 = new JRadioButton("Windows",conf.getLF().equals("win"));
-	    rb5.setActionCommand(rb5.getText());
-	    rb5.setEnabled(wnd.isAvailableLookAndFeel(wnd.getLongLF("win")));
-	    group.add(rb5);
-	    panel.add(rb5);
-  	  	
+	  	
+	    JRadioButton rb;
+	    rb = new JRadioButton("Standard (Metal)",conf.getLF().equals("metal"));
+	    rb.setActionCommand(rb.getText());
+	    rb.setEnabled(wnd.isAvailableLookAndFeel(wnd.getLongLF("metal")));
+	    group.add(rb);
+	    panel.add(rb);
+	  	
+	    rb = new JRadioButton("Kunststoff",conf.getLF().equals("kunststoff"));
+	    rb.setActionCommand(rb.getText());
+	    rb.setEnabled(wnd.isAvailableLookAndFeel(wnd.getLongLF("kunststoff")));
+	    group.add(rb);
+	    panel.add(rb);
+	  	
+	    rb = new JRadioButton("Motif",conf.getLF().equals("motif"));
+	    rb.setActionCommand(rb.getText());
+	    rb.setEnabled(wnd.isAvailableLookAndFeel(wnd.getLongLF("motif")));
+	    group.add(rb);
+	    panel.add(rb);
+	  	
+	    rb = new JRadioButton("Mac",conf.getLF().equals("mac"));
+	    rb.setActionCommand(rb.getText());
+	    rb.setEnabled(wnd.isAvailableLookAndFeel(wnd.getLongLF("mac")));
+	    group.add(rb);
+	    panel.add(rb);
+	  	
+	    rb = new JRadioButton("Windows",conf.getLF().equals("win"));
+	    rb.setActionCommand(rb.getText());
+	    rb.setEnabled(wnd.isAvailableLookAndFeel(wnd.getLongLF("win")));
+	    group.add(rb);
+	    panel.add(rb);
+	  	  	
 	}
-  
+	  
+	
+	private void addViewRadios(JPanel panel) {
+	  	
+	    rb = new JRadioButton("Tabellen-Ansicht",conf.getView().equals("table"));
+	    rb.setActionCommand("table");
+	    rb.setToolTipText(Help.OPTIONS_VIEW_TABLE);
+	    view.add(rb);
+	    panel.add(rb);
+	  	
+	    rb = new JRadioButton("Baum-Ansicht",conf.getView().equals("tree"));
+	    rb.setActionCommand("tree");
+	    rb.setToolTipText(Help.OPTIONS_VIEW_TREE);
+	    rb.addChangeListener(this);
+	    view.add(rb);
+	    panel.add(rb);
+	  	
+	    rb_view_treecol_name = new JRadioButton(
+	            "Event-Namen als Bl\u00E4tter des Event-Baums",
+	            conf.getViewCol()  == Define.VIEW_COL_NAME);
+	    rb_view_treecol_name.setActionCommand("viewcol_name");
+	    rb_view_treecol_name.setToolTipText(Help.OPTIONS_VIEW_COL_NAME);
+	    view_col.add(rb_view_treecol_name);
+	    panel.add(rb_view_treecol_name);
+	  	
+	    rb_view_treecol_loc = new JRadioButton(
+	            "Event-Orte als Bl\u00E4tter des Event-Baums",
+	            conf.getViewCol()  == Define.VIEW_COL_LOC);
+	    rb_view_treecol_loc.setActionCommand("viewcol_loc");
+	    rb_view_treecol_loc.setToolTipText(Help.OPTIONS_VIEW_COL_LOC);
+	    view_col.add(rb_view_treecol_loc);
+	    panel.add(rb_view_treecol_loc);
+	  	
+	  	  	
+	  	  	
+	}
+	  
+
 	public void actionPerformed(ActionEvent event)
 	{
 	    if (event.getActionCommand().equals("Abbrechen")) {
@@ -319,21 +371,30 @@ implements ActionListener, KeyListener
 	        Base.showBox(this, Help.OPTIONS_HELP, 2);
 	    }
 	    else if (event.getActionCommand().equals("OK")) {
-	    	ButtonModel selected = group.getSelection();
+	        ButtonModel selected = group.getSelection();
 	        if (selected != null) {
 	            String value= selected.getActionCommand().toLowerCase();
 	            if (selected.getActionCommand().equals("Windows")) {
 	                value="win";
 	            }
-	            if (selected.getActionCommand().equals("Standard (Metal)")) {
+	            else if (selected.getActionCommand().equals("Standard (Metal)")) {
 	                value="metal";
-	            }
-	            if (Define.doDebug()) {
-	                new Logger("Selektiert: " + value, true);
 	            }
 	            // L&F aktualisieren
 	            conf.setLF(value);
 	            wnd.updateLF();
+	        }
+	        // Anzeigeformat
+	        if (view.getSelection() != null) {
+	            conf.setView(view.getSelection().getActionCommand());
+	            if (view.getSelection().getActionCommand().equals("tree")) {
+	                if (view_col.getSelection().getActionCommand().equals("viewcol_name")) {
+	                    conf.setViewCol(Define.VIEW_COL_NAME);
+	                }
+	                else {
+	                    conf.setViewCol(Define.VIEW_COL_LOC);
+	                }
+	            }
 	        }
 	        // Member-Daten aktualisiseren
 	        if (conf.getUsername().equals("")) {
@@ -404,6 +465,21 @@ implements ActionListener, KeyListener
 	        txt_puser.setEnabled(false);
 	        txt_ppass.setEnabled(false);
 	    }
+    }
+
+    public void stateChanged(ChangeEvent e) {
+        if (rb.isSelected()) {
+            if (! rb_view_treecol_name.isEnabled())
+                rb_view_treecol_name.setEnabled(true);
+            if (! rb_view_treecol_loc.isEnabled())
+                rb_view_treecol_loc.setEnabled(true);
+        }
+        else {
+            if (rb_view_treecol_name.isEnabled())
+                rb_view_treecol_name.setEnabled(false);
+            if (rb_view_treecol_loc.isEnabled())
+                rb_view_treecol_loc.setEnabled(false);
+        }
     }
  
 }

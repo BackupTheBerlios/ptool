@@ -8,6 +8,7 @@ package de.partysoke.psagent.gui;
 
 import java.awt.event.*;
 
+import javax.swing.JTree;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
@@ -16,7 +17,7 @@ import com.jeans.trayicon.*;
 import de.partysoke.psagent.*;
 import de.partysoke.psagent.util.*;
 
-public class MWndHandler extends WindowClosingAdapter implements ActionListener, TableColumnModelListener {
+public class MWndHandler extends WindowClosingAdapter implements ActionListener, TableColumnModelListener, TreeSelectionListener {
 
 	MWnd src;
   	TableColumnModel tcm;
@@ -192,6 +193,25 @@ public class MWndHandler extends WindowClosingAdapter implements ActionListener,
 	public void columnMoved(TableColumnModelEvent e) {}
 	public void columnRemoved(TableColumnModelEvent e) {}
 	public void columnSelectionChanged(ListSelectionEvent e) {}
+
+    public void valueChanged(TreeSelectionEvent event) {
+	    MyTreeNode mtn = null;
+	    try {
+	        JTree tmp = (JTree)event.getSource();
+	        mtn = (MyTreeNode)tmp.getSelectionPath().getLastPathComponent();
+	    }
+	    catch(ClassCastException cce) {	// passiert bei jedem nicht-Blatt 
+	        if (Define.doDebug>1) 
+	            new Logger(cce.toString());
+	    }
+	    catch(NullPointerException npe) {	// es passiert, weiß aber nicht wann 
+	        if (Define.doDebug>1) 
+	            new Logger(npe.toString());
+	    }
+	    if (mtn != null) {
+	        src.getDetailsPanel().changeEvent(mtn.getID());
+	    }
+    }
 
 	
 	
