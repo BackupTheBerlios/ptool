@@ -16,6 +16,7 @@ import java.awt.*;
 import de.partysoke.psagent.*;
 import de.partysoke.psagent.gui.*;
 import de.partysoke.psagent.download.*;
+import de.partysoke.psagent.util.print.*;
 
 /**
  * Funktions-Container-Klasse, die wichtige Grundfunktionen zum Holen und Verarbeiten,
@@ -28,8 +29,7 @@ public class Base {
 	private static String timeOfArray="";
 	private static String inhalt;
 	private static String[][] events;
-	private static int eventsCount;
-	private static int userEventsCount;
+	private static int eventsCount, maxEventsCount, userEventsCount;
 	
 	/**
 	 * Prüft, ob eine Datei vorhanden und gültig ist, und gibt im Erfolgsfall "true" zurück.
@@ -40,14 +40,14 @@ public class Base {
 		File f1 = new File(Define.getEventsFile());
 		if (f1.exists()) {
 			inhalt=DownloadThread.code(FileIO.readFile(Define.getEventsFile(),false),config.getConst());
-			eventsCount = parseArraySize(inhalt);
-			if (eventsCount>0) {
+			maxEventsCount = parseArraySize(inhalt);
+			if (maxEventsCount>0) {
 				timeOfArray=inhalt.split("\n")[1];
 				return true;
 			}
 			// Datei oder Übertragung fehlerhaft
 			else {
-				switch (eventsCount) {
+				switch (maxEventsCount) {
 					case -1: showBox(parent, Define.getNoDBCon(),1); break;
 					case -2: showBox(parent, Define.getWrongUser(),1); break;
 					case -4: showBox(parent, Define.getWrongData(),1); break;
@@ -130,7 +130,7 @@ public class Base {
 	}
 
 	/**
-	 * Zeigt eine MessageBox (JOptionPane). Typen:
+	 * Zeigt eine MessageBox (JOptionPane). Typen:<br>
 	 * 1 - Error-Message<br>
 	 * 2 - Information<br>
 	 * 3 - Question<br>
@@ -164,11 +164,8 @@ public class Base {
 	}
 
 	
-
-
 	/**
 	 * Gibt einen Teil oder ein vollständiges Datum aus
-	 * 01.01.2004 12:25
 	 * @param was
 	 * @return datum
 	 */
@@ -179,6 +176,7 @@ public class Base {
 		switch (format) {
 			case Define.DATE_DATE: result = "dd.MM.yyyy"; break;
 			case Define.DATE_TIME: result = "HH:mm:ss"; break;
+			case Define.DATE_DMY: result = "yyyyMMdd"; break;
 			case Define.DATE_BOTH: result = "dd.MM.yyyy HH:mm:ss"; break;
 		}
 		GregorianCalendar cal = new GregorianCalendar();
@@ -221,26 +219,24 @@ public class Base {
 	 * @param source
 	 * @return result
 	 */
-	public static String[] parseNews()
+	public static String[][] parseNews()
 	{
 		Config conf = Start.getConf();
 	    String source = DownloadThread.code(FileIO.readZippedFile(Define.getNewsFileName()),conf.getConst());
 		String[] tmp = source.split("\\|");
-		String[] result = new String[(tmp.length/3)];
+		String[][] result = new String[(tmp.length/3)][3];
 		source = null;
-
-		try {
-			int j = 0;
-		    for (int i = 0; i < (tmp.length-2); i += 3) {
-			result[j++] = tmp[i] + "   " + tmp[i+1] + "\n" + tmp[i+2];    
-			}
-		}
-		catch (RuntimeException e) { 
-		    if (Define.doDebug > 1) new Logger(e.toString());
-		}
+		int j = 0;
 		
+		for (int i = 0; i < (tmp.length-2); i += 3) {
+		    result[j][0] = tmp[i];	// Datum
+		    result[j][1] = tmp[i + 1];	// Betreff
+		    result[j++][2] = tmp[i + 2];	// Text
+		}
+
 		return result;
 	}
+
 	
 	/**
 	 * Zerlegt die Zeilen der News-Datei in ein Array.
@@ -427,34 +423,55 @@ public class Base {
 		}
 	}
 	
+	/**
+	 * Prüft, ob das angegebene Datum in der Vergangenheit liegt, 
+	 * und gibt dann true zurück.
+	 * @param date
+	 * @param today
+	 * @return
+	 */
+	private static boolean isOldEvent(String date, String today) {
+	    // date: 12.12.2004 in 20041212 umwandeln
+	    String[] tmp = date.split("\\.");
+	    date = tmp[2] + tmp[1] + tmp[0];
+	    try {
+		    if (Integer.parseInt(date) < Integer.parseInt(today))
+		        return true;
+		    else
+		        return false;
+		}
+		catch(NumberFormatException e) { return true; }
 
+	}
+	
 	/**
 	 * Zerlegt die Zeilen des Datenfile (source) in ein 2D-Array anhand der Anzahl der Zeilen (size).
 	 * @param source
 	 * @param size
-	 * @return String[][]
+	 * @return events
 	 */
-	private static String[][] parseData(String source, int size)
+	private static String[][] parseData(String source)
 	{
-		String[] tmp = new String[size];
-		String[][] result = new String[size][14];
-		tmp=source.split("\n");
+	    String[] tmp = source.split("\n");
+	    String[] tmp2;
+		Vector result = new Vector();
+		String today = getDate(Define.DATE_DMY);
 		
-		for (int i=0; i < size+2; i++) {
+		for (int i=0; i < tmp.length; i++) {
 			if (i>1) {
-				result[i-2]=tmp[i].split("\\|");
-				for (int j=1; j < 6; j++) {
-					result[i-2][j]=result[i-2][j].replaceAll("<br>"," - ");
-					result[i-2][j]=result[i-2][j].replaceAll("<BR>"," - ");
-				}
+			    tmp2 = tmp[i].replaceAll("<br>"," - ").split("\\|");
+			    // Event überspringen, wenn es vergangen ist(tmp2[5] ist das Datum)
+			    if (! isOldEvent(tmp2[5], today)) {
+					result.add(tmp2);
+			    }
 			} 
 		}
-		if (Define.doDebug>2) {	// Debug-Mode
-		    new Logger(DebugPrint.print_all(result), true);
-		}
-		
 		tmp  = null;
-		return result;
+		String[][] finalResult = new String[result.size()][14];
+		for (int x = 0; x < result.size(); x++) {
+		    finalResult[x] = (String[])result.get(x);
+		}
+		return finalResult;
 	}
 	
 	/**
@@ -463,9 +480,9 @@ public class Base {
 	public static String[][] getAll() {
 		
 		//	Array, in das sämtliche Events kommen, füllen
+		events = Base.parseData(inhalt);
+		eventsCount = events.length;
 		String[][] result = new String[eventsCount][5];
-		events = new String[eventsCount][15];
-		events=Base.parseData(inhalt,eventsCount);
 		
 		// Array in Tabellen-Form umwandeln
 		for (int i=0; i < events.length; i++) {
@@ -751,12 +768,208 @@ public class Base {
 
 	}
 
+	
+	/**
+	 * Bereitet die Daten aus dem Events-Array so auf, dass sie gedruckt werden können
+	 *
+	 */
+	public static void preparePrinting() {
+	    
+	    int maxLineLen = 95;
+	    StringBuffer text = new StringBuffer();
+	    StringBuffer event;
+	    
+	    // Datums-Vektor bauen (sowas wie group by - Klausel aus mysql)
+	    Vector dates = new Vector();
+	    for (int i = 0; i < events.length; i++) {
+	        if (! dates.contains(events[i][5]))
+	            dates.add(events[i][5]);
+	    }
+	    // durch das ganze Array gehen, und Datumsgruppen erstellen
+	    for (int j = 0; j < dates.size(); j++) {
+		    text.append(dates.get(j));
+		    text.append("\n----------\n");
+	        for (int i = 0; i < events.length; i++) {
+		       //DebugPrint.print_ri(events[i],"\n");
+	           if (events[i][5].equals(dates.get(j))) {
+	               event = new StringBuffer();
+	               event.append("- ");
+	               event.append(events[i][1]);
+	               event.append(" in ");
+	               event.append(events[i][2]); 
+		           if (! events[i][4].equals("")) {
+		               event.append(", Band(s): ");
+		               if (events[i][4].length() > 100) {
+		                   event.append(events[i][4].substring(0, 98));
+		                   event.append("...");
+		               }
+		               else {
+		                   event.append(events[i][4]);
+		               }
+		           }
+		           if (! events[i][9].equals("")) {
+		               event.append(", Zeit: ");
+		               event.append(events[i][9]);
+		           }
+		           if (event.length() > maxLineLen) {
+		               text.append(event.substring(0, maxLineLen));
+		               text.append("\n  ");
+		               text.append(event.substring(maxLineLen));
+		           }
+		           else {
+			           text.append(event);
+		           }
+		           text.append("\n");
+		       }
+
+		    }
+		    if (j < dates.size() - 1) text.append("\n");
+	    }
+
+	    FileIO.writeToFile(Define.getTmpFile(), text.toString());
+
+	}
+	
+	/**
+	 * Bereitet die Daten aus dem Events-Array so auf, dass sie gedruckt werden können
+	 *
+	 */
+	public static void preparePrinting2() {
+	    
+	    StringBuffer text = new StringBuffer();
+	    
+	    // Datums-Vektor bauen (sowas wie group by - Klausel aus mysql)
+	    Vector dates = new Vector();
+	    for (int i = 0; i < events.length; i++) {
+	        if (! dates.contains(events[i][5]))
+	            dates.add(events[i][5]);
+	    }
+	    // durch das ganze Array gehen, und Datumsgruppen erstellen
+	    for (int j = 0; j < dates.size(); j++) {
+		    text.append(dates.get(j));
+		    text.append("\n----------\n");
+	        for (int i = 0; i < events.length; i++) {
+		       //DebugPrint.print_ri(events[i],"\n");
+	           if (events[i][5].equals(dates.get(j))) {
+	               text.append("- ");
+	               text.append(events[i][1]);
+		           text.append(" in ");
+		           text.append(events[i][2]); 
+		           if (! events[i][4].equals("")) {
+	                   text.append(", Band(s): ");
+		               if (events[i][4].length() > 100) {
+		                   text.append(events[i][4].substring(0, 98));
+		                   text.append("...");
+		               }
+		               else {
+		                   text.append(events[i][4]);
+		               }
+		           }
+		           if (! events[i][9].equals("")) {
+		               text.append(", Zeit: ");
+		               text.append(events[i][9]);
+		           }
+		           text.append("\n");
+		       }
+
+		    }
+		    if (j < dates.size() - 1) text.append("\n");
+	    }
+
+	    FileIO.writeToFile(Define.getTmpFile(), text.toString());
+
+	}
+	
+	/**
+	 * Druckt die Events-Tabelle
+	 */
+	public static void print() {
+
+	    preparePrinting();
+	    SimpleFilePrinter sfp = new SimpleFilePrinter(Define.getTmpFile());
+	    if (sfp.setupJobOptions()) {
+	        try {
+	            sfp.printFile();
+	        } catch (Exception e) {
+	            System.err.println(e.toString());
+	        }
+	    }
+	    new File(Define.getTmpFile()).delete();
+	}
+    
+	/**
+	 * Findet aus einer Url mit einem pac-File den entsprechenden Proxy
+	 * @param filename
+	 * @return Array aus proxy-Url und proxy-Port
+	 */
+	public static String[] getProxyFromPAC(String filename) {
+        String[] proxy = { "", "" };
+        //String[] file = FileIO.readFile(filename, false).split("\r\n");
+        try {
+            String[] file = NetIO.getFromUrlToStream(filename, Define.getUA()).
+        				toString().split("\n");
+        
+            for (int i = 0; i < file.length; i++) {
+                file[i] = file[i].replaceAll("\t", "");
+                file[i] = file[i].trim();
+            	if (! file[i].startsWith("//") && file[i].matches(".*PROXY.*")) {
+                	proxy = file[i].split(" ")[2].split(";")[0].split(":");
+            	}
+        	}
+        }
+        catch (IOException e) { new Logger(e.toString()); }
+        if (Define.doDebug > 1) new Logger("Proxy: " + DebugPrint.print_all(proxy));
+        return proxy;
+    }
+
+	
+	/**
+	 * Ändert die Proxy-Einstellungen
+	 * (holt sich nötigenfalls die Einstellungen aus einer .pac)<br>
+	 * TODO: Design(returnType, Weiterverarbeitung in den Dialogen) evtl. nochmal
+	 * überarbeiten
+	 */
+	public static boolean setProxySettings() {
+  	    Config conf = Start.getConf();
+  	    
+  	    if (! conf.getProxyUrl().equals("") ) {
+  	        String[] values = getProxyFromPAC(conf.getProxyUrl());
+  	        // Versuchen den Port zu einem integer zu machen, als Prüfung
+  	        // für das Parsen, etwas dirty aber was solls
+  	        try {
+  	            Integer.parseInt(values[1]);
+  	        }
+  	        catch (NumberFormatException e) {
+  	            showBox(Help.PROXY_FAIL, 1);
+  	            return false;
+  	        }
+  	        conf.setProxyUrl("");
+  	        conf.setProxyHost(values[0]);
+  	        conf.setProxyPort(values[1]);
+  	    }
+  	    
+  	    if (! conf.getProxyHost().equals("") ) {
+  	        System.setProperty("http.proxyHost",     conf.getProxyHost());
+  	        System.setProperty("http.proxyPort",     conf.getProxyPort());
+  	        System.setProperty("http.proxyUser",     conf.getProxyUser());
+  		    System.setProperty("http.proxyPassword", conf.getProxyPass());
+  		}
+  	    else {
+  	        System.setProperty("http.proxyHost", "");
+  	        System.setProperty("http.proxyPort", "");  	        
+  	    }
+  	    if (Define.doDebug())
+  	      new Logger("Proxy-Einstellungen ge\u00E4ndert.", true);
+  	    
+  	    return true;
+  	}
+    
 
 
 	/**
 	 * Ändert die Groessen aller Spalten, so dass alle Werte komplett sichtbar 
 	 * sind.
-	 * 'Geklaut' aus de.comp.lang.java, etwas modifizert
+	 * stammt von http://www.chka.de/swing/table/cell-sizes.html
 	 * 
 	 * @param table
 	 */
