@@ -105,7 +105,13 @@ public class Data {
 	}
 	
 	public void close() {
-	    String toAdd = name + "|" + ort + "|" + plz + "|" + tag + "|" + monat + "|" + jahr + "|" + bands+ "|" + kat + "|" + loc +
+	    String tagS = String.valueOf(tag);
+	    String monatS = String.valueOf(monat);
+	    
+	    if (tag < 10) tagS = "0" + tag;
+	    if (monat < 10) monatS = "0" + monat;
+	    
+	    String toAdd = name + "|" + ort + "|" + plz + "|" + tagS + "|" + monatS + "|" + jahr + "|" + bands+ "|" + kat + "|" + loc +
 								 "|" + orga + "|" + zeit + "|" + cost + "|" + text;
 		toAdd = toAdd.replaceAll("\n", "<br>");
 		FileIO.appendToFile(Define.getUserEADFileName(), toAdd + "\r\n");
