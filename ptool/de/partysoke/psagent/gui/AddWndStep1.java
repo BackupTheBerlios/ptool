@@ -266,6 +266,10 @@ implements ActionListener
 		return this.text_bnd;
 	}
     
+	public JList getListBnd() {
+		return this.list_bnd;
+	}
+    
 	public GetAddData getGetData() {
 		return this.getdata;
 	}
