@@ -16,7 +16,7 @@ public class Define {
     private static final String ownName = "PSAgent";
 	
 	/** festgelegtes Debuglevel (Release = 0, Beta = 1, Devel = 2|3) */
-	public static int doDebug=2;
+	public static int doDebug=1;
 	
     /** Version der Anwendung */
 	private static final int[] version = { 1 , 0 , 0 };
@@ -38,7 +38,7 @@ public class Define {
 	private static final String ua = "Mozilla/5.0 " + ownName + "/" + getVersionAsString();
 	
 	/** Bezeichnungen der Spalten der Events-Tabelle */
-	private static final String[] spalten = { "Name","Ort","Datum","Kategorie","Band(s)" };
+	private static final String[] spalten = { "Name","Ort","Datum","Genre","Band(s)" };
 	
 	/** Default-Position des Fensters */
     private static final String wininfo = "50,50,650,600";
@@ -53,24 +53,27 @@ public class Define {
 										 ".psagent" +
 										 System.getProperty("file.separator");
 	
-	/** Url der Anwendung */
+	/** Datei, in der die Event-Daten sind */
 	private static final String eventsFile = Define.homeDir() + "psagent.dat";
 	
-	/** Url der Anwendung */
+	/** Datei, in der die Konfigurations-Optionen stehen */
 	private static final String configFile = Define.homeDir() + "psagentrc";
 	
-	/** Url der Anwendung */
-	private static final String debugFile = Define.homeDir() + "debug.txt";
+	/** Datei, in der die Debug-Informationen stehen */
+	private static final String debugFile = "debug.txt";
 	
-	/** Url der Anwendung */
+	/** Datei, in der die News-Daten sind */
 	private static final String newsFile = Define.homeDir() + "news.dat";
 	
-	/** Url der Anwendung */
+	/** Datei, in der die User-Event-Roh-Daten sind */
 	private static final String eadFile = Define.homeDir() + "ead.dat";
 
-	/** Url der Anwendung */
+	/** Datei, in der die User-Events sind */
 	private static final String usereadFile = Define.homeDir() + "user.dat";
 
+	/** temporäre Dati, die beim Drucken erzeugt wird */
+	private static final String tmpFile = System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + "psagent.tmp";
+	
 
     /** Meldung bei Fehler in der Verbindung */
 	private static final String noCon = "Es ist ein Fehler aufgetreten.\nBesteht ein Internet-Verbindung?";
@@ -125,7 +128,8 @@ public class Define {
     
     public static final int DATE_DATE = 1;
     public static final int DATE_TIME = 2;
-    public static final int DATE_BOTH = 3;
+    public static final int DATE_DMY = 3;
+    public static final int DATE_BOTH = 4;
     public static final int DATE_DAY = 4;
     public static final int DATE_MONTH = 5;
     public static final int DATE_YEAR = 6;
@@ -436,5 +440,12 @@ public class Define {
      */
     public static String getUA() {
         return ua;
+    }
+    
+    /**
+     * @return Returns the tmpFile.
+     */
+    public static String getTmpFile() {
+        return tmpFile;
     }
 }
