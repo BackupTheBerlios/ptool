@@ -1,9 +1,12 @@
 ToDo: 
-- events eintragen, was wenn abbruch
 - unter win: uservents speichern, wenn umlaute drin????
+- showevents.writetofile nach base schieben
 
+08.12.2004: neue Klassen: UploadDialog und UploadThread für das Event-Uploaden
+			Menüpunkt Eigene Events->Events ansehen nur aktiv wenn eigene Events vorhanden
+			neue Klasse: Logger, ersetzt Base.LogThis(), Implementation überarbeitet
 07.12.2004: EAD-Datei wird nun verschlüsselt gespeichert
-			neuer Menüpunkt: Datei->Events hochladen
+			neuer Menüpunkt: Datei->Events hochladen, nur aktiv wenn eigene Events vorhanden
 			Bugfix: Beim Event-Eintragen fehlte ein \r\n
 			ShowEvents.deleteUserEvents nach Base.deleteArrayElement verschoben
 			Klasse DebugPrint angelegt
