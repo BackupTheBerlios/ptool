@@ -11,7 +11,7 @@ import java.awt.event.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
-import com.jeans.trayicon.TrayIconPopupSimpleItem;
+import com.jeans.trayicon.*;
 
 import de.partysoke.psagent.*;
 import de.partysoke.psagent.util.*;
