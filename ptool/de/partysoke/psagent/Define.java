@@ -19,7 +19,7 @@ public class Define {
 	public static int doDebug=1;
 	
     /** Version der Anwendung */
-	private static final int[] version = { 1 , 0 , 0 };
+	private static final int[] version = { 1 , 0 , 3 };
 	
 	/** Programm-weites Encoding */
 	private static final String encoding = "UTF-8";
@@ -76,7 +76,7 @@ public class Define {
 	
 
     /** Meldung bei Fehler in der Verbindung */
-	private static final String noCon = "Es ist ein Fehler aufgetreten.\nBesteht ein Internet-Verbindung?";
+	private static final String noCon = "Es ist ein Fehler aufgetreten.\nBesteht eine Internet-Verbindung?";
 
     /** Meldung bei Fehler in der DB-Verbindung */
 	private static final String noDBCon = "Es konnte keine Verbindung zur Datenbank aufgebaut werden. Probiere es sp\u00E4ter nocheinmal.";
@@ -139,6 +139,9 @@ public class Define {
 
     public static final int EVENTDOWNLOAD = 0;
     public static final int EVENTUPLOAD = 1;
+
+    public static final int VIEW_COL_NAME = 0;
+    public static final int VIEW_COL_LOC = 1;
 
     private static final String EventDownloadTitle = "Daten herunterladen";
     private static final String EventUploadTitle = "Eigene Events hochladen";
@@ -248,6 +251,14 @@ public class Define {
      * @return version
      */
     public static String getVersionAsString() {
+    		return version[0]+"."+version[1];
+    }
+    
+    /**
+     * Gibt die aktuelle Programmversion als String(mit Punkten) zurück
+     * @return version
+     */
+    public static String getFullVersionAsString() {
     		return version[0]+"."+version[1]+"."+version[2];
     }
     
