@@ -1,3 +1,8 @@
+/*
+ * Created on 01.12.2003
+ * by Enrico Tröger
+*/
+
 package de.partysoke.psagent;
 
 import de.partysoke.psagent.gui.*;
@@ -37,7 +42,7 @@ public class Start
 
 	    // System-Properties setzen
 	    System.setProperty("file.encoding", Define.getEncoding());
-	    setProxySettings();
+	    //Base.setProxySettings();
 
 	    // diverse Vorbereitungen
 	    wnd.setBounds(conf.getWinInfo());
@@ -51,6 +56,7 @@ public class Start
 	    // Splashscreen schließen, Hauptfenster anzeigen
 	    wnd.setVisible(true);
 	    if (conf.getSplash()) sp.endDialog();
+	    //wnd.toFront();	// bringt das was???
 
 	}
   	
@@ -140,22 +146,5 @@ public class Start
     	    new Logger(Base.getSystemInfos(),false);
     	}
 	}
-
-	public static void setProxySettings() {
-  	    if (! conf.getProxyHost().equals("") ) {
-  	        System.out.println("proxy set");
-  	        System.setProperty("http.proxyHost",     conf.getProxyHost());
-  	        System.setProperty("http.proxyPort",     conf.getProxyPort());
-  	        System.setProperty("http.proxyUser",     conf.getProxyUser());
-  		    System.setProperty("http.proxyPassword", conf.getProxyPass());
-  		}
-  	    else {
-  	        System.setProperty("http.proxyHost", "");
-  	        System.setProperty("http.proxyPort", "");  	        
-  	    }
-  	    if (Define.doDebug())
-  	      new Logger("Proxy-Einstellungen ge\u00E4ndert.", true);
-  	}
-    
 
 }
