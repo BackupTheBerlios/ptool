@@ -1,5 +1,6 @@
 /*
  * Created on 29.07.2004
+ * (eigentlich schon früher, aber das Design war komplett anders, schlechter)
  */
 
 package de.partysoke.psagent;
@@ -25,26 +26,35 @@ public class Config {
     /** OS-Ermittlung */
     private final String sys = Base.getOS() == Define.WINDOWS_OS ? "1" : "0"; 
     
+    /** ist die Config noch aktuell? */
+    private boolean recent = true; 
+    
+    /** existiert die Config-Datei? */
+    private boolean exists; 
+    
     /** Value-Indizes-Mapping (Ersatz für String-Indizes) */
     private final int INDEX_CONST = 0;
     private final int INDEX_LF = 1;
-    private final int INDEX_WININFO = 2;
-    private final int INDEX_WININFOUE = 3;
-    private final int INDEX_WINSAVE = 4;
-    private final int INDEX_COLWIDTH = 5;
-    private final int INDEX_AUTO = 6;
-    private final int INDEX_SPLASH = 7;
-    private final int INDEX_SYSTRAY = 8;
-    private final int INDEX_USER = 9;
-    private final int INDEX_PASS = 10;
-    private final int INDEX_EMAIL = 11;
-    private final int INDEX_URL = 12;
-    private final int INDEX_TEL = 13;
-    private final int INDEX_PURL = 14;
-    private final int INDEX_PHOST = 15;
-    private final int INDEX_PPORT = 16;
-    private final int INDEX_PUSER = 17;
-    private final int INDEX_PPASS = 18;
+    private final int INDEX_USER = 2;
+    private final int INDEX_PASS = 3;
+    private final int INDEX_EMAIL = 4;
+    private final int INDEX_URL = 5;
+    private final int INDEX_TEL = 6;
+    private final int INDEX_PURL = 7;
+    private final int INDEX_PHOST = 8;
+    private final int INDEX_PPORT = 9;
+    private final int INDEX_PUSER = 10;
+    private final int INDEX_PPASS = 11;
+    private final int INDEX_WININFO = 12;
+    private final int INDEX_WININFOUE = 13;
+    private final int INDEX_WINSAVE = 14;
+    private final int INDEX_VERSION = 15;
+    private final int INDEX_COLWIDTH = 16;
+    private final int INDEX_AUTO = 17;
+    private final int INDEX_SPLASH = 18;
+    private final int INDEX_SYSTRAY = 19;
+    private final int INDEX_VIEW = 20;
+    private final int INDEX_VIEW_COL = 21;
     
     
     /** 
@@ -54,13 +64,6 @@ public class Config {
     private String[][] values = { 
 	        { name, "const", ""},
 			{ name, "lf", "win"},
-			{ name, "wininfo", Define.getWinInfo()},
-			{ name, "wininfo_ue", Define.getWinInfoUE()},
-			{ name, "win_save", "1"},
-			{ name, "column_widths", ""},
-			{ name, "auto_upload", "0"},
-			{ name, "splash", "1"},
-			{ name, "systray", sys},
 			{ name, "username", ""},
 			{ name, "password", ""},
 			{ name, "email", ""},
@@ -70,27 +73,77 @@ public class Config {
 			{ name, "phost", ""},
 			{ name, "pport", ""},
 			{ name, "puser", ""},
-			{ name, "ppass", ""} };
+			{ name, "ppass", ""},
+    		{ name, "wininfo", Define.getWinInfo()},
+    		{ name, "wininfo_ue", Define.getWinInfoUE()},
+    		{ name, "win_save", "1"},
+    		{ name, "version", Define.getFullVersionAsString()},
+    		{ name, "column_widths", ""},
+    		{ name, "auto_upload", "0"},
+    		{ name, "splash", "1"},
+    		{ name, "systray", sys},
+    		{ name, "view", "table"},
+    		{ name, "view_col", "0"}
+    		};
+    
 
 	/**
-	 * Ließt die INI-Datei ein und stellt deren Variablen dem Programm zur Verfügung
-	 * in Form eines Arrays
+	 * Ließt die INI-Datei ein und stellt deren Variablen dem Programm
+	 * in Form eines Arrays zur Verfügung
 	 * (Falls INI-Datei nicht existiert, werden Std.-Werte benutzt)
 	 */
 	public Config() {
 
 		try {
 		    IniHandler ini = new IniHandler(Define.getConfigFilename());
-			for (int i = 0; i < values.length; i++) 
+		    // Versionsprüfung, Config muss selbe Version wie Programm haben
+		    // wenn recent false ist, werde obige Std.Werte benutzt, und die
+		    // Config beim Beenden neu geschrieben
+		    recent = ! Base.parseVersionString(
+		                ini.getPropertyString(
+		                        values[INDEX_VERSION][0],
+		                        values[INDEX_VERSION][1], "")
+		             );
+
+		    if (! recent) {
+		        // Config veraltet -> Löschen
+		        new File(Define.getConfigFilename()).delete();
+		        if (Define.doDebug()) new Logger("Config veraltet.");
+		    }
+		    for (int i = 0; i < values.length && recent; i++) {
 			    values[i][2]=ini.getPropertyString(values[i][0], values[i][1], values[i][2]);
+			}
+
+		    this.exists = true;
 		} 
 		catch (IOException e) {
-		    if (Define.doDebug()) {
+		    this.exists = false;
+	        if (Define.doDebug()) {
 		        new Logger("Fehler: Config konnte nicht gelesen werden.", true);
-		        new Logger(e.toString(), true);
+		        if (Define.doDebug > 1) new Logger(e.toString(), true);
 		    }
 		}
 	}
+	
+
+	/**
+	 * Gibt zurück, ob die Config noch aktuell zur Programmversion ist
+	 * @return recent
+	 */
+	public boolean isRecent() {
+		return recent;
+	}
+	
+	
+	/**
+	 * Gibt zurück, ob die Config noch aktuell zur Programmversion ist
+	 * @return recent
+	 */
+	public boolean exists() {
+		return exists;
+	}
+	
+
 	
 	/**
 	 * Gibt die in der INI-Datei gespeicherte Fenster-Geometrie zurück
@@ -162,7 +215,7 @@ public class Config {
 	    catch(Exception e) {
 		    if (Define.doDebug()) {
 		        new Logger("Warnung: Config enthielt Fehler (column_widths).", true);
-		        new Logger(e.toString(), true);
+		        //new Logger(e.toString(), true);
 		    }
 	        result[0] = -1;
 	    }
@@ -248,6 +301,24 @@ public class Config {
 	public void setSystray(boolean systray) {
 		if (systray) values[INDEX_SYSTRAY][2]="1";
 		else values[INDEX_SYSTRAY][2]="0";
+	}
+	
+	/**
+	 * Ort oder Event-Name im Baum als Blatt darstellen
+	 * @return col
+	 */
+	public int getViewCol() {
+	    if (values[INDEX_VIEW_COL][2].equals("1")) return Define.VIEW_COL_LOC;
+	    return Define.VIEW_COL_NAME;
+	}
+	
+	/**
+	 * Ort oder Event-Name im Baum als Blatt darstellen
+	 * @param col
+	 */
+	public void setViewCol(int col) {
+		if (col == Define.VIEW_COL_LOC) values[INDEX_VIEW_COL][2]="1";
+		else values[INDEX_VIEW_COL][2]="0";
 	}
 	
 	/**
@@ -442,10 +513,27 @@ public class Config {
 	
 	/**
 	 * Speichert das Argument key in der INI-Datei
-	 * @param key
+	 * @param laf
 	 */
 	public void setLF(String laf) {
 	    values[INDEX_LF][2]=laf;
+	}
+	
+	
+	/**
+	 * Gibt das Anzeige-Format für die Events zurück
+	 * @return view
+	 */
+	public String getView() {
+		return values[INDEX_VIEW][2];
+	}
+	
+	/**
+	 * Speichert das Anzeige-Format für die Events in der INI-Datei
+	 * @param view
+	 */
+	public void setView(String view) {
+	    values[INDEX_VIEW][2]=view;
 	}
 	
 	
