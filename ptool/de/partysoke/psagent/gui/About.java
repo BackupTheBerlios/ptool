@@ -1,5 +1,6 @@
 /*
  * Created on 06.01.2004
+ * (rework on 15.12.2004)
  * by Enrico Tröger
  */
 
@@ -12,7 +13,7 @@ import javax.swing.*;
 import de.partysoke.psagent.*;
 import de.partysoke.psagent.util.*;
 
-class About
+public class About
 extends JDialog
 implements ActionListener
 {
@@ -20,45 +21,50 @@ implements ActionListener
   {
 	super(parent,"\u00DCber " + Define.getOwnName(),true);
 	Point parloc = parent.getLocation();
-	setBounds(parloc.x + 30, parloc.y + 30,400,370);
+	setBounds(parloc.x + 30, parloc.y + 30,300,400);
 	this.getContentPane().setBackground(Color.lightGray);
 	this.getContentPane().setLayout(new BorderLayout());
 	setResizable(false);
 	
-	String about_text="<div align=\"center\"><table width=\"90%\"><tr><td><font face=\"Verdana\" size=\"2\"><b>" + Define.getOwnName() + "</b> ist ein kleines Java-Programm, mit dem man die Events-Tabelle "+ 
-									"von www.PartySOKe.de auf seinen Rechner herunterladen " +
-									"kann. So hat man auch dann noch jederzeit Zugriff auf die Events-Tabelle, "+
-									"wenn keine Internetverbindung besteht.<br>Ideal f\u00FCr Modem- oder ISDN-Besitzer, "+
-									"die keine Flatrate haben.</font></td></tr><tr><td>&nbsp;</td></tr>"+
-									"<tr><td><font face=\"Verdana\" size=\"2\">" + Define.getOwnName() + " Version "+ Define.getVersionAsString() +
-									"<br><br>by Enrico Tr\u00F6ger<br>eMail: " + Define.getOwnName() + "@PartySOKe.de<br>" + Define.getUrl_self() + "</font></td></tr>"+
-									"<tr><td>&nbsp;</td></tr><tr><td><font face=\"Verdana\" size=\"2\">Vielen Dank an Frank, "+
-									"der mir mit der Projekt-Webseite und mit dem Programm geholfen hat.</font></td></tr></table>";
+	JPanel panel = new JPanel(new BorderLayout());
 	
-	// Die Labels
-	JLabel lab = new JLabel(Define.getOwnName() + " " + Define.getVersionAsString(),JLabel.CENTER);
-	JTextPane lab2 = new JTextPane();
-	lab2.setContentType("text/html");
-	lab2.setText(about_text);
-	lab2.setEditable(false);
-		
-	//Ende-Button-Panel
-	JPanel button_panel = new JPanel(new FlowLayout());
-	JButton button = new JButton("Neue Version");
-	button.addActionListener(this);
-	button_panel.add(button);
+	// Bildteil
+	JLabel img = new JLabel();
+	img.setIcon(
+	        new ImageIcon(
+	                getToolkit().getImage(getClass().getResource(Define.ImageAbout))
+	        )
+	);
 	
-	button = new JButton("Schlie\u00DFen");
-	button.addActionListener(this);
-	button_panel.add(button);
+	StringBuffer about_text = new StringBuffer();
+	about_text.append("\u00A9 2004 by Enrico Tr\u00F6ger f\u00FCr www.PartySOKe.de\n");
+	about_text.append("Website: http://ptool.PartySOKe.de\n");
+	about_text.append("eMail: ptool@PartySOKe.de\n\n");
+	about_text.append("Dieses Programm steht noch unter keiner Lizenz, aber wohl bald etwas \u00E4hnliches der LGPL (Lesser GNU Public License)");
 	
-	//JPanel
-	JPanel panel = new JPanel();
-	panel.setLayout(new BorderLayout());
-	panel.add(lab, BorderLayout.NORTH);
-	panel.add(lab2, BorderLayout.CENTER);
-	panel.add(button_panel, BorderLayout.SOUTH);
-	this.getContentPane().add(panel, BorderLayout.CENTER);
+	// Textteil
+	JTextPane text = new JTextPane();
+	text.setEditable(false);
+	text.setFont(new Font(null, Font.PLAIN, 11));
+	text.setText(about_text.toString());
+	
+	// Button-Teil
+	JPanel buttons = new JPanel();
+	buttons.setBackground(Color.white);
+	JButton button_newver = new JButton("Neue Version");
+	JButton button_close = new JButton("Schlie\u00DFen");
+	button_close.addActionListener(this);
+	button_newver.addActionListener(this);
+	buttons.add(button_newver);
+	buttons.add(button_close);
+	
+	// Panel zusammensetzen
+	panel.add(img, BorderLayout.NORTH);
+	panel.add(text, BorderLayout.CENTER);
+	panel.add(buttons, BorderLayout.SOUTH);
+	
+	panel.setBackground(Color.white);
+	this.getContentPane().add(panel);
 	
 	//Window-Listener
 	addWindowListener(
