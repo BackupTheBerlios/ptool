@@ -134,7 +134,7 @@ public class DownloadThread extends Thread
 	 * @param String encKey
 	 * @return String key
 	 */
-	public static String getKeyFromSave(String encKey) {
+	public static String getConstFromSave(String encKey) {
 		encKey=code(encKey,67);
 		String key="";
 		key+=encKey.charAt(3);
