@@ -95,7 +95,6 @@ public class DownloadThread extends Thread
 
 		Config conf = Start.getConf();
 				
-		System.out.println("Mozilla/5.0 " + Define.getOwnName() + "/" + Define.getVersionAsString() + " " + System.getProperty("os.version"));
 		NetIO.getFromUrlToFile(
 		        addr+file1+Define.getVersionAsString()+ending+"?user="+conf.getUsername()+"&pass="+conf.getPassword(),
 		        "Mozilla/5.0 " + Define.getOwnName() + "/" + Define.getVersionAsString() + " " + System.getProperty("os.version"),
