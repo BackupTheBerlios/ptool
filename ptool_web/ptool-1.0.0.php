@@ -129,7 +129,8 @@ if ($nc==3) {
 // Stats eintragen
 $ua = getenv("HTTP_USER_AGENT");
 $daten = explode (" ", $ua);
-$sql=@mysql_query("INSERT INTO psagent VALUES ('',NOW(),'$daten[3]','$daten[2]')",$conn);
+$daten2 = explode ("/", $daten[1]);
+$sql=@mysql_query("INSERT INTO psagent VALUES ('',NOW(),'$daten[2]','$daten2[1]')",$conn);
 
 // SQL-Abfrage Bedingungen für den/die Kreise festlegen
 //if ($area=="all" or $area=="") {
