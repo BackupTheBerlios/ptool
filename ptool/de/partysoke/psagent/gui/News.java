@@ -36,15 +36,14 @@ class News extends JDialog implements ActionListener, TreeSelectionListener
 	        if (! dates.contains(newsText[i][0]))
 	            dates.add(newsText[i][0]);
 	    }
-	    DefaultMutableTreeNode root, date, subject;
+	    DefaultMutableTreeNode root, date;
 		root = new DefaultMutableTreeNode("PartySOKe.de");
 		for (int i = 0; i < dates.size(); i++) {
 			date = new DefaultMutableTreeNode(dates.get(i));
 			root.add(date);
 			for (int j = 0; j < newsText.length; j++) {
 			    if (newsText[j][0].equals(dates.get(i))) {
-			        subject = new MyTreeNode(newsText[j][1], j);
-			        date.add(subject);
+			        date.add(new MyTreeNode(newsText[j][1], j));
 			    }
 			}
 		}
@@ -71,14 +70,10 @@ class News extends JDialog implements ActionListener, TreeSelectionListener
 		);*/
 	    
 		// Baum komplett erweitern und somit in Scrollpane einpassen
-		// Code-Fragment aus tvbrowser.ui.settings.SettingsDialog.java
-		// Danke dem TV-Browser-Team
-		int categoryCount = root.getChildCount();
-	    for (int i = categoryCount; i >= 1; i--) {
+		for (int i = root.getChildCount(); i >= 1; i--) {
 	      tree.expandRow(i);
 	    }
 	    spane.getViewport().setPreferredSize(tree.getPreferredSize());
-	    // TV-Browser-Code Ende ;-)
 	    
 		JPanel treePanel = new JPanel(new BorderLayout(10, 0));
 		treePanel.add(spane, BorderLayout.WEST);
