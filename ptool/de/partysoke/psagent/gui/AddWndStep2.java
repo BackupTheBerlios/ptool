@@ -203,7 +203,8 @@ implements ActionListener
 	{
 		setVisible(false);
 		dispose();
-		parent.getConfig().setWinInfoUE(this.getLocation());
+		if (parent.getConfig().getSaveWinInfo())
+		    parent.getConfig().setWinInfoUE(this.getLocation());
 		//((Window)getParent()).toFront();
 		//getParent().requestFocus();
 	}
