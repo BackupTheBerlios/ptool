@@ -37,7 +37,7 @@ implements ActionListener
 	);
 	
 	StringBuffer about_text = new StringBuffer();
-	about_text.append("\u00A9 2004 by Enrico Tr\u00F6ger f\u00FCr www.PartySOKe.de\n");
+	about_text.append("\u00A9 2004-2005 by Enrico Tr\u00F6ger f\u00FCr www.PartySOKe.de\n");
 	about_text.append("Website: http://psagent.PartySOKe.de\n");
 	about_text.append("eMail: psagent@PartySOKe.de\n\n");
 	about_text.append("Dieses Programm steht noch unter keiner Lizenz, aber wohl bald etwas \u00E4hnliches der LGPL (Lesser GNU Public License)");
