@@ -1,32 +1,63 @@
-
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <malloc.h>
 
-// kurzes Startprogramm für Windows (läuft auch unter Linux, da aber lieber die Shell ;-)
-// ToDo: damit es wieder unter Linux laueft, muss gegen javaw geprueft werden
+/* kurzes Startprogramm für Windows
+ * (läuft auch unter Linux, da aber lieber die Shell ;-)
+ */
+ 
+#ifdef LINUX
+char* prog = "java -jar PSAgent.jar";
+#else
+char* prog = "javaw -jar PSAgent.jar";
+#endif
 
-int main(int para_anz, char* paras[]) {
+// Prototypen
+char* implode(const int len, char* array[]);
 
-char* cmd;
-char* tmp="javaw -jar PTool.jar ";
-char* tmp2="javaw -jar PTool.jar ";
 
-cmd=(char*) malloc(sizeof(char)*strlen(tmp)+20);
-cmd=strcpy(cmd,tmp);
 
-if (strcmp(paras[1],"-v")==0) {
-        printf("hallo");
+int main(int argc, char* argv[]) {
+
+	// Parameter in einen durch Leerzeichen getrennten String wandeln
+	char* para = implode(argc, argv);
+	// String cmd mit entsprechend Speicher vorbelegen
+	char* cmd = (char*) malloc(sizeof(char)*(strlen(prog)+strlen(para)));
+	
+	// cmd zusammensetzen
+	strcpy(cmd, prog);
+	strcat(cmd, para);
+
+	if (!system(cmd)) {
+        fprintf(stderr, "Fehler!");
+	}
+	
+	//printf("%s\n",cmd);
+
+	return 0;
 }
 
-if (para_anz > 1) {
-        cmd=strcat(cmd,paras[1]);
-}
+char* implode(const int len, char* array[])
+{
+	char* result;
+	char* space = " ";
+	int i, mem = 0;
+	
+	// geht das nicht einfacher???
+	for (i = 1; i < len; i++)
+	{
+		mem += strlen(array[i]);
+	}
 
-if (!system(cmd)) {
-        printf("Fehler!");
+	result = (char*) malloc(sizeof(char) * mem);
+	
+	// Start bei 1, um Programmname zu übergehen
+	for (i = 1; i < len; i++)
+	{
+		strcat(result, space);
+		strcat(result, array[i]);
+	}
+	
+	return result;
 }
-//printf(cmd);
-//printf("\n");
-
-return 0;
-}
-
