@@ -20,24 +20,26 @@ public class FileIO {
 
     
 	/**
-	 * Schreibt text in fileName, löscht die Datei vor dem Schreiben, wenn delete gesetzt ist
+	 * Schreibt text in fileName und löscht die Datei vor dem Schreiben, falls sie existiert.
 	 * 
 	 * @param fileName
 	 * @param text
-	 * @param delete
+	 * @return status
 	 */
-	public static void writeToFile(String fileName, String text, boolean delete) {
+	public static boolean writeToFile(String fileName, String text) {
 		try {
 		    File file = new File(fileName);
-			FileWriter f = new FileWriter(file);
-			BufferedWriter buf = new BufferedWriter(f);
-		    
-		    if (delete) file.delete();
-			buf.write(text);
+		    if (file.exists()) file.delete();
+			
+		    BufferedWriter buf = new BufferedWriter(new FileWriter(file));
+		    buf.write(text);
 			buf.close();
-			f.close();
+			return true;
 		}
-		catch (IOException e) { if (Define.doDebug()) Base.LogThis(e.toString()); }
+		catch (IOException e) { 
+		    if (Define.doDebug()) new Logger(e.toString());
+		    return false;
+		}
 	}
 	
 
@@ -79,7 +81,7 @@ public class FileIO {
 			byte[] b = text.getBytes();
 			out.write(b);
 			out.close();
-		} catch (IOException e) { if (Define.doDebug()) Base.LogThis(e.toString()); }
+		} catch (IOException e) { if (Define.doDebug()) new Logger(e.toString()); }
 	}
 	
 	/**
@@ -90,15 +92,17 @@ public class FileIO {
 	 */
 	public static void appendToFile(String fileName, String text) {
 		try {
-		    FileWriter f = new FileWriter(fileName, true);
-			BufferedWriter buf = new BufferedWriter(f);
-		    
+		    BufferedWriter buf = new BufferedWriter(new FileWriter(fileName, true));
 		    buf.write(text);
 		    buf.close();
-			f.close();
 			
-		} catch (IOException e) { if (Define.doDebug()) Base.LogThis(e.toString()); }
+		} catch (IOException e) { 
+		    // wird u.a. von Logger() aufgerufen, daher Ausgabe direkt mit syso
+		    // und nicht über Logger()
+		    if (Define.doDebug()) System.out.println(e.toString());
+		}
 	}
+	
 	
 	/**
 	 * Ließt den Inhalt der komprimierten Datei file ein, und gibt ihn in einem String zurück.
@@ -122,7 +126,7 @@ public class FileIO {
 			}
   			zipin.close();
 		}
-		catch (IOException e) { if (Define.doDebug()) Base.LogThis(e.toString()); }
+		catch (IOException e) { if (Define.doDebug()) new Logger(e.toString()); }
 		
 		return buffer.toString();
 	}
@@ -189,7 +193,7 @@ public class FileIO {
 			if (returnFailure) {
 				tmp=e.toString();
 			}
-			if (Define.doDebug()) Base.LogThis(e.toString());
+			if (Define.doDebug()) new Logger(e.toString());
 		}
 		return tmp;
 	}
