@@ -77,6 +77,10 @@ public class MWndHandler extends WindowClosingAdapter implements ActionListener,
 	  	    
 	  	    Base.readUserEventsCount();
 			src.updateStatusBarEventlabel();
+			dlg = null;
+		}
+	  	else if (cmd.equals("Events drucken")) {
+	  	    Base.print();
 		}
 	  	else if (cmd.equals("News lesen")) {
 			
@@ -173,14 +177,16 @@ public class MWndHandler extends WindowClosingAdapter implements ActionListener,
 	}
 	int i = 0;
 	public void columnAdded(TableColumnModelEvent e) {}
+	
 	public void columnMarginChanged(ChangeEvent e) {
+	    // wird zur Zeit nicht benutzt (vergessen wozu das gedient hat)
 	    TableColumn col;
 	    // Datum
 	    col = tcm.getColumn(2);
-	    col.setPreferredWidth(50);
+	    col.setPreferredWidth(30);
 	    // Kategorie
 	    col = tcm.getColumn(3);
-	    col.setPreferredWidth(50);
+	    col.setPreferredWidth(30);
 
 	}
 	public void columnMoved(TableColumnModelEvent e) {}
