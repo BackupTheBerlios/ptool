@@ -206,7 +206,7 @@ implements ActionListener
     		dateOk=false;
     	}
 		if (allOk && !dateOk) { 
-			Base.showBox(this,  "Bitte gebe ein gültiges Datum an!", 4);
+			Base.showBox(this,  "Bitte gebe ein g\u00FCltiges Datum an!", 4);
 			allOk=false;
 		} 
 
@@ -215,7 +215,7 @@ implements ActionListener
 			(list_bnd.getSelectedIndex()==this.BandsLastIndex &&
 			 text_bnd.getText().length()==0)) {
 			if (allOk) {
-				Base.showBox(this, "Bitte gebe mind. eine Band an (wenn keine Band spielt, dann \"Keine\" auswählen)!", 4);
+				Base.showBox(this, "Bitte gebe mind. eine Band an (wenn keine Band spielt, dann \"Keine\" ausw\u00C4hlen)!", 4);
 				allOk=false;
 			} 
 		}
