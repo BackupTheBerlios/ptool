@@ -48,7 +48,7 @@ public class UploadThread extends DownloadThread {
 		}
 
 	    out = NetIO.sendToUrlGetResponse(
-	            addr+file3+Define.getVersionAsString()+ending+"?user="+conf.getUsername()+"&pass="+conf.getPassword()+"&nc=4",
+	            addr+file3+Define.getFullVersionAsString()+ending+"?user="+conf.getUsername()+"&pass="+conf.getPassword()+"&nc=4",
 	            Define.getUA(),
 	            tmp
 	    );
@@ -122,8 +122,9 @@ public class UploadThread extends DownloadThread {
 			this.sendUserEvents();
 		} 
 		catch (IOException e) {
-			if (Define.doDebug>2)
-			    new Logger("Exception beim Upload: " + e.toString(), true);
+			if (Define.doDebug>2) {
+			    //new Logger("Exception beim Upload: " + e.toString(), true);
+			}
 		}
 		
 		if (this.running) {

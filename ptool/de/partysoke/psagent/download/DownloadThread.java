@@ -59,7 +59,7 @@ public class DownloadThread extends Thread
 	public static String getUserDataAddr() {
 		
 		Config conf = Start.getConf();
-		return addr+file1+Define.getVersionAsString()+ending+"?user="+conf.getUsername()+"&pass="+conf.getPassword()+"&nc=3";
+		return addr+file1+Define.getFullVersionAsString()+ending+"?user="+conf.getUsername()+"&pass="+conf.getPassword()+"&nc=3";
 	}
 	
 	/**
@@ -67,7 +67,7 @@ public class DownloadThread extends Thread
 	 * @return versionAddr
 	 */
 	public static String getVersionAddr() {
-		return addr+file1+Define.getVersionAsString()+ending+"?nc=2";
+		return addr+file1+Define.getFullVersionAsString()+ending+"?nc=2";
 	}
 
 
@@ -80,7 +80,7 @@ public class DownloadThread extends Thread
 		String uri = (filename.equals(Define.getNewsFileName())) ? file1 : file2;
 	
 		NetIO.getFromUrlToFile(
-		        addr+uri+Define.getVersionAsString()+ending+"?user="+conf.getUsername()+"&pass="+conf.getPassword()+"&nc=4",
+		        addr+uri+Define.getFullVersionAsString()+ending+"?user="+conf.getUsername()+"&pass="+conf.getPassword()+"&nc=4",
 		        Define.getUA(),
 		        filename);
 		
@@ -96,8 +96,8 @@ public class DownloadThread extends Thread
 		Config conf = Start.getConf();
 				
 		NetIO.getFromUrlToFile(
-		        addr+file1+Define.getVersionAsString()+ending+"?user="+conf.getUsername()+"&pass="+conf.getPassword(),
-		        "Mozilla/5.0 " + Define.getOwnName() + "/" + Define.getVersionAsString() + " " + System.getProperty("os.version"),
+		        addr+file1+Define.getFullVersionAsString()+ending+"?user="+conf.getUsername()+"&pass="+conf.getPassword(),
+		        "Mozilla/5.0 " + Define.getOwnName() + "/" + Define.getFullVersionAsString() + " " + System.getProperty("os.version"),
 		        filename, 1024, true);
 	
 	}
@@ -112,7 +112,7 @@ public class DownloadThread extends Thread
 		
 		return getKeyFromString(code(
 		        NetIO.getFromUrlToStream(
-		                addr+file1+Define.getVersionAsString()+ending+"?user="+conf.getUsername()+"&pass="+conf.getPassword()+"&nc=1",
+		                addr+file1+Define.getFullVersionAsString()+ending+"?user="+conf.getUsername()+"&pass="+conf.getPassword()+"&nc=1",
 		                Define.getUA()).toString(),
 		        17));
 	}
@@ -233,8 +233,9 @@ public class DownloadThread extends Thread
 
 		} 
 		catch (IOException e) {
-			if (Define.doDebug>1)
-			    new Logger("Exception beim Download: \n" + e.toString(), true);
+			if (Define.doDebug>1) {
+			    //new Logger("Exception beim Download: \n" + e.toString(), true);
+			}
 			failure = "";
 		}
 		if (this.running)
