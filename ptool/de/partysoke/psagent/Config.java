@@ -31,18 +31,20 @@ public class Config {
     private final int INDEX_WININFO = 2;
     private final int INDEX_WININFOUE = 3;
     private final int INDEX_WINSAVE = 4;
-    private final int INDEX_AUTO = 5;
-    private final int INDEX_SPLASH = 6;
-    private final int INDEX_SYSTRAY = 7;
-    private final int INDEX_USER = 8;
-    private final int INDEX_PASS = 9;
-    private final int INDEX_EMAIL = 10;
-    private final int INDEX_URL = 11;
-    private final int INDEX_TEL = 12;
-    private final int INDEX_PHOST = 13;
-    private final int INDEX_PPORT = 14;
-    private final int INDEX_PUSER = 15;
-    private final int INDEX_PPASS = 16;
+    private final int INDEX_COLWIDTH = 5;
+    private final int INDEX_AUTO = 6;
+    private final int INDEX_SPLASH = 7;
+    private final int INDEX_SYSTRAY = 8;
+    private final int INDEX_USER = 9;
+    private final int INDEX_PASS = 10;
+    private final int INDEX_EMAIL = 11;
+    private final int INDEX_URL = 12;
+    private final int INDEX_TEL = 13;
+    private final int INDEX_PURL = 14;
+    private final int INDEX_PHOST = 15;
+    private final int INDEX_PPORT = 16;
+    private final int INDEX_PUSER = 17;
+    private final int INDEX_PPASS = 18;
     
     
     /** 
@@ -55,6 +57,7 @@ public class Config {
 			{ name, "wininfo", Define.getWinInfo()},
 			{ name, "wininfo_ue", Define.getWinInfoUE()},
 			{ name, "win_save", "1"},
+			{ name, "column_widths", ""},
 			{ name, "auto_upload", "0"},
 			{ name, "splash", "1"},
 			{ name, "systray", sys},
@@ -63,6 +66,7 @@ public class Config {
 			{ name, "email", ""},
 			{ name, "url", ""},
 			{ name, "telefon", ""},
+			{ name, "purl", ""},
 			{ name, "phost", ""},
 			{ name, "pport", ""},
 			{ name, "puser", ""},
@@ -86,7 +90,6 @@ public class Config {
 		        new Logger(e.toString(), true);
 		    }
 		}
-
 	}
 	
 	/**
@@ -130,7 +133,7 @@ public class Config {
 		        new Logger("Warnung: Config enthielt Fehler (wininfo_ue).", true);
 		        new Logger(e.toString(), true);
 		    }
-	        String[] tmp_2 = Define.getWinInfo().split(",");
+	        String[] tmp_2 = Define.getWinInfoUE().split(",");
 	        return new Point(Integer.parseInt(tmp_2[0]),Integer.parseInt(tmp_2[1]));
 	    }
 	}
@@ -141,6 +144,37 @@ public class Config {
 	 */
 	public void setWinInfoUE(Point wini) {
 		values[INDEX_WININFOUE][2]=wini.x + "," + wini.y;
+	}
+	
+	
+	/**
+	 * Ließt die Spaltenbreiten für die Eventstabelle aus
+	 * @return wi
+	 */
+	public int[] getColumnWidths() {
+	    String[] tmp = values[INDEX_COLWIDTH][2].split(",");
+	    int[] result = new int[tmp.length];
+	    try {
+	        for (int i = 0; i < tmp.length; i++) {
+	            result[i] = Integer.parseInt(tmp[i]);
+	        }
+	    }
+	    catch(Exception e) {
+		    if (Define.doDebug()) {
+		        new Logger("Warnung: Config enthielt Fehler (column_widths).", true);
+		        new Logger(e.toString(), true);
+		    }
+	        result[0] = -1;
+	    }
+	    return result;
+	}
+	
+	/**
+	 * Setzt die Spaltenbreiten der Eventstabelle
+	 * @param wi
+	 */
+	public void setColumnWidths(String wi) {
+		values[INDEX_COLWIDTH][2]=wi;
 	}
 	
 	
@@ -271,6 +305,22 @@ public class Config {
 	}
 	
 	/**
+	 * Gibt die in der INI-Datei gespeicherte ProxyUrl zurück
+	 * @return proxyHost
+	 */
+	public String getProxyUrl() {
+		return values[INDEX_PURL][2];
+	}
+	
+	/**
+	 * Setzt die ProxyUrl
+	 * @param proxyUrl
+	 */
+	public void setProxyUrl(String proxyURL) {
+	    values[INDEX_PURL][2]=proxyURL;
+	}
+	
+	/**
 	 * Gibt den in der INI-Datei gespeicherten ProxyHost zurück
 	 * @return proxyHost
 	 */
@@ -287,7 +337,7 @@ public class Config {
 	}
 	
 	/**
-	 * Gibt den in der INI-Datei gespeicherten ProxyHost zurück
+	 * Gibt den in der INI-Datei gespeicherten ProxyPort zurück
 	 * @return proxyHost
 	 */
 	public String getProxyPort() {
