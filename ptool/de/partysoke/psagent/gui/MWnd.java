@@ -7,7 +7,6 @@ package de.partysoke.psagent.gui;
 
 
 import java.awt.*;
-
 import javax.swing.*;
 import javax.swing.table.*;
 
@@ -17,7 +16,7 @@ import de.partysoke.psagent.util.*;
 
 /**
  * Klasse zum Erzeugen des Hauptfensters,
- * mit L&F-Behandlung und Tabellen-Update
+ * mit L&F-Behandlung, Systray-Support und Tabellen-Update
  * 
  * @author Enrico Tröger
  */
@@ -76,7 +75,7 @@ public class MWnd extends JFrame
   	    table.addMouseListener(new MouseL(table, null));
   	    table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
   	    table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		// Renderer für Tabelle bauen
+  	    // Renderer für Tabelle bauen
   	    renders = new DefaultTableCellRenderer();
   	    renders.setHorizontalAlignment(SwingConstants.CENTER);
   	    
@@ -138,32 +137,59 @@ public class MWnd extends JFrame
   	 * Holt sich die Daten aus der Daten-Datei, und trägt sie in die Tabelle ein
   	 */
   	public void fillTable() {
-  	
+  	    boolean success = true;
+  	    String[][] daten;
+  	    
   	    if (Base.check_file(this, conf)) {
-  	        String[] spaltenNamen = Define.getSpalten();
-  	        String[][] inhalt = Base.getAll();
-  	        table.setModel(new JTModel(spaltenNamen,inhalt));
-  	        inhalt = null;
-  	        //Base.calcColumnWidths(table);
-  		    // Spalten-Eigenschaften anpassen
-  	        /*TableColumnModel c = table.getColumnModel();
-  	        c.addColumnModelListener(listener);
-  		    TableColumn col;
-  		    // Datum
-  		    col = c.getColumn(2);
-  		    col.setResizable(false);
-  		    col.setCellRenderer(renders);
-  		    // Kategorie
-  		    col = c.getColumn(3);
-  		    col.setResizable(false);
-  		    col.setCellRenderer(renders);
-  		    */
+  	        daten = Base.getAll();
+  	        if (daten.length == 0) {
+  	            success = false;
+  	        }
+  	        else {
+  	            table.setRowHeight(18);
+  	  	    	table.setModel(new JTModel(Define.getSpalten(), daten));
+    	        //Base.calcColumnWidths(table);
+    		    // Spalten-Eigenschaften anpassen
+  	  	    	readColumnWidths();
+  	  	    	TableColumnModel c = table.getColumnModel();
+    	        //c.addColumnModelListener(listener);
+    		    TableColumn col;
+    		    // Datum
+    		    col = c.getColumn(2);
+    		    col.setResizable(false);
+    		    col.setCellRenderer(renders);
+    		    col.setMaxWidth(80);
+    		    col.setPreferredWidth(80);
+    		    // Kategorie
+    		    col = c.getColumn(3);
+    		    col.setResizable(false);
+    		    col.setCellRenderer(renders);
+    		    col.setMaxWidth(50);
+    		    col.setPreferredWidth(50);
+	            
+  	        }
   	        label_bottom.setText(" Stand des Datenbestands: " + Base.getTimeOfArray());
   	        statusBarPanel.setEventLabel();
   	    }
   	    else {
   	      new Logger("Fehler: Datenfile konnte nicht gelesen werden.", true);
+  	      success = false;
   	    }
+  	    
+  	    if (!success) {
+            // Keine Events vorhanden (kein Download, Daten zu alt, ...)
+            daten = new String[1][1];
+            daten[0][0] = "Keine Daten vorhanden! Daten-Update erforderlich";
+            table.setRowHeight(50);
+            
+            table.setModel(new JTModel(new String[1], daten));
+            // Zelleninhalt zentrieren
+            DefaultTableCellRenderer render = new DefaultTableCellRenderer();
+            render.setHorizontalAlignment(SwingConstants.CENTER);
+            table.getColumnModel().getColumn(0).setCellRenderer(render);
+
+  	    }
+  	    
   	    table.getTableHeader().updateUI();
   	    System.gc();
   	}
@@ -303,11 +329,11 @@ public class MWnd extends JFrame
 	 */
 	public void updateFileMenuUE() {
 	    if (Base.getUserEventsCount() == 0) {
-	        this.ret_fm.getItem(1).setEnabled(false);
+	        this.ret_fm.getItem(2).setEnabled(false);
 	        this.ret_em.getItem(1).setEnabled(false);
 	    }
 	    else {
-	        this.ret_fm.getItem(1).setEnabled(true);
+	        this.ret_fm.getItem(2).setEnabled(true);
 	        this.ret_em.getItem(1).setEnabled(true);
 	    }
 	}
@@ -316,11 +342,13 @@ public class MWnd extends JFrame
 	 * Liest den Status für den Menüpunkt "News lesen" neu ein
 	 */
 	public void updateFileMenuNews() {
-	    if (Base.getEventsCount() == 0) {
+	    if (Base.getEventsCount() < 1) {
 	        this.ret_fm.getItem(0).setEnabled(false);
+	        this.ret_em.getItem(0).setEnabled(false);
 	    }
 	    else {
 	        this.ret_fm.getItem(0).setEnabled(true);
+	        this.ret_em.getItem(0).setEnabled(true);
 	    }
 	}
 	
@@ -352,13 +380,43 @@ public class MWnd extends JFrame
 	    }
 	}
 		
-    
+    /**
+     * Ließt die Spaltenbreiten ein, und schreibt sie in die Config
+     */
+	private void saveColumnWidths() {
+        TableColumnModel c = table.getColumnModel();
+	    TableColumn col;
+	    StringBuffer widths = new StringBuffer();
+        for (int i = 0; i < c.getColumnCount(); i++) {
+    	    col = c.getColumn(i);
+    	    widths.append(col.getWidth());
+    	    if (i != c.getColumnCount() - 1) widths.append(",");
+        }
+	    conf.setColumnWidths(widths.toString());
+    }
+	
+    /**
+     * Ließt die Spaltenbreiten ein, und ändert sie in der Tabelle
+     */
+	private void readColumnWidths() {
+        TableColumnModel c = table.getColumnModel();
+	    TableColumn col;
+	    int[] widths = conf.getColumnWidths();
+        if (widths[0] != -1) {
+            for (int i = 0; i < c.getColumnCount(); i++) {
+                col = c.getColumn(i);
+                col.setPreferredWidth(widths[i]);
+            }
+         }
+    }
+	
 	/**
 	 * Schließt das Hauptfenster, und beendet das Programm.
 	 */
 	public void shutDown() {
+	    this.saveColumnWidths();
 	    this.setVisible(false);
-	    this.conf.setWinInfo(this.getBounds());
+	    if (this.conf.getSaveWinInfo()) this.conf.setWinInfo(this.getBounds());
 	    this.conf.writeFile();
 		this.dispose();
 		if (this.systray_active) systray.close();
@@ -376,6 +434,11 @@ public class MWnd extends JFrame
 	    // News
 	    mi = new JMenuItem("News lesen", 'e');
 	    setCtrlAccelerator(mi, 'N');
+	    mi.addActionListener(listener);
+	    ret_fm.add(mi);
+	    // Drucken
+	    mi = new JMenuItem("Events drucken", 'i');
+	    setCtrlAccelerator(mi, 'P');
 	    mi.addActionListener(listener);
 	    ret_fm.add(mi);
 	    // Events-Update
