@@ -234,7 +234,8 @@ public class DownloadThread extends Thread
 		} 
 		catch (IOException e) {
 			if (Define.doDebug>1)
-			    new Logger("Exception beim Download: " + e.toString(), true);
+			    new Logger("Exception beim Download: \n" + e.toString(), true);
+			failure = "";
 		}
 		if (this.running)
 		    this.parent.finish(keyStatus, failure);
