@@ -492,12 +492,12 @@ public class Base {
 		out  = null;
 		
 		// Version analysieren
-		String[] tmp2 = ver.split(",");
+		String[] tmp = ver.split(",");
 		int[] tmpVersion = new int[3];
-		tmpVersion[0]=Integer.parseInt(tmp2[0]);
-		tmpVersion[1]=Integer.parseInt(tmp2[1]);
-		tmpVersion[2]=Integer.parseInt(tmp2[2]);
-		tmp2  = null;
+		tmpVersion[0]=Integer.parseInt(tmp[0]);
+		tmpVersion[1]=Integer.parseInt(tmp[1]);
+		tmpVersion[2]=Integer.parseInt(tmp[2]);
+		tmp  = null;
 		ver  = null;
 		
 		int [] curV=Define.getVersion();
@@ -743,11 +743,11 @@ public class Base {
 				Base.showBox(parent, "Du hast die aktuellste Version von " + Define.getOwnName() + ".", 2);
 			}
 		}
-		catch (Exception e) { 
-			if (Define.doDebug>1)
-			    new Logger("Exception bei Versions-Kontrolle: " + e, true);
+		catch (IOException e) { 
+			if (Define.doDebug>1) new Logger(e.toString());
 			Base.showBox(parent, Define.getNoCon(), 2);
 		}
+		catch (RuntimeException e) {}
 
 	}
 
