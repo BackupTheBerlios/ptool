@@ -1,0 +1,63 @@
+<project name="PSAgent" default="dist" basedir=".">
+
+	<property name="src" location="."/>
+	<property name="dist"  location="dist"/>
+	<property name="build" location="${dist}/build"/>
+			  
+	<target name="init" depends="clean">
+		<tstamp/>
+    	<mkdir dir="${build}"/>
+    	<copy todir="${build}/com">
+    		<fileset dir="${src}/com"/>
+    	</copy>
+		<copy file="${src}/de/partysoke/psagent/gui/images/splash.jpg" tofile="${build}/de/partysoke/psagent/gui/images/splash.jpg"/>
+		<copy file="${src}/de/partysoke/psagent/gui/images/icon.jpg" tofile="${build}/de/partysoke/psagent/gui/images/icon.jpg"/>
+	</target>
+
+	<target name="compile" depends="init" >
+		<delete file="${dist}/PSAgent-${DSTAMP}.jar"/>
+		<javac srcdir="${src}" destdir="${build}" classpath="${src}"/>
+	</target>
+
+	<target name="dist" depends="compile" >
+  		<mkdir dir="${dist}"/>
+	
+		<jar destfile="${dist}/PSAgent-${DSTAMP}.jar"
+  			basedir="${build}"
+  			compress="1">
+  			<manifest>
+  				<attribute name="Main-Class" value="de.partysoke.psagent.Start"/>
+  				<section name="PSAgent">
+  		      	<attribute name="Specification-Vendor" value="Enrico Troeger"/>
+  		        <attribute name="Specification-Version" value="1.0.0"/>
+  		      </section>
+  		    </manifest>        
+		</jar>
+		<delete dir="${build}"/>
+	</target>
+		  
+	<target name="src">
+		<property name="bsrc" location="dist/src"/>
+		
+		<tstamp/>
+		    	
+		<mkdir dir="${bsrc}"/>
+	  	<copy todir="${bsrc}/de">
+	    		<fileset dir="${src}/de" excludes="*.class"/>
+	    	</copy>
+	  	<copy file="${src}/kunststoff.jar" todir="${bsrc}"/>
+	
+  		<zip destfile="${dist}/PSAgent-src-${DSTAMP}.zip"
+  			basedir="${bsrc}"
+  			compress="1">  			   
+		</zip>
+		<delete dir="${bsrc}"/>
+	</target>
+		  
+	<target name="clean" >
+    	<delete dir="${build}"/>
+    	<!--<delete dir="${dist}"/>-->
+	</target>
+
+</project>
+						  

@@ -1,0 +1,42 @@
+ToDo: 
+- events eintragen, was wenn abbruch
+- unter win: uservents speichern, wenn umlaute drin????
+
+07.12.2004: EAD-Datei wird nun verschlüsselt gespeichert
+			neuer Menüpunkt: Datei->Events hochladen
+			Bugfix: Beim Event-Eintragen fehlte ein \r\n
+			ShowEvents.deleteUserEvents nach Base.deleteArrayElement verschoben
+			Klasse DebugPrint angelegt
+05.12.2004: Proxy-Wert noProxy, wenn kein Proxy angegeben ist, ist Proxy nun ""
+			Zufälliger Key wird wieder genutzt, Lebenszeit eines Keys ist mind. 3 Minuten,
+			damit News und Daten gleiche Keys erhalten (Erzeugung auf Server)
+18.10.2004: Package de.partysoke.psagent.*; angelegt und alle Klassen entsprechend organisiert
+14.10.2004: Alt-X wird als Beenden interpretiert
+			Höhe des Labels über der Eventstabelle verringert
+			"PTool" als String entfernt, durch getOwnName() ersetzt
+			Klasse PTool in Start umbenannt
+			Bugfix: debug.txt ist wieder lesbar(war vorher durch falsch kodierte Sonderzeichen kaputt)
+			Nochmal Verbesserungen/Bugfixing in FileIO, außerdem arbeiten nun alle Methoden mit CharacterStreams
+13.10.2004: Debug-Meldungen in debug.txt tragen nun ein Datum
+			kleine Verbesserungen in FileIO
+12.10.2004: neue Klasse eingefügt: Define, Container für sämtliche globalen Konstanten, inkl. deren Getter
+11.10.2004: Bugfix: AddWndStep2->MaskFormatter für Eintritt wieder entfernt(Eintritt war unmöglich)
+			Bugfix: DetailsUser->wenn veranstalter null, dann exception
+			ShowEvents: Breiter und dafür weniger hoch gemacht
+			AddWndStep1, Base, DownloadThread, Details, ShowEvents, ...: PLZ eingefügt
+			Fenster-Größe und -Position beim Beenden wird nun gespeichert, wenn Option aktiviert
+			Bugfix: neu erzeugte Config-Datei war korrupt
+10.10.2004: getSpalten nach PTool verschoben
+			viele Variablen in PTool private gemacht
+07.10.2004: addwndstep1: datumsfelder mit MaskFormatter belegt
+			addwndstep2: eintrittsfeld mit MaskFormatter belegt, in jdialog geändert
+			Klasse MyKeyL gelöscht
+			Bugfix: addwndstep2->abbrechen erzeugte trotzdem einen eintrag
+15.08.2004: DownloadThread.destroy() hinzugefuegt, bricht nun wirklich ab
+			addwndstep1: in jdialog geändert
+			showevents: aufruf für updateStatusBarEventlabel angepasst
+			mwnd: updateStatusBarEventlabel() eingefuegt
+			fileIO: appendtofile 1+2 getauscht, weil die neue, kurze nich funzt
+			details: text und eintritt warn vertauscht, bei eigenen events
+			update: setcanceled eingeführt
+			downdialog: bei abbruch wird tabelle nich mehr neu eingelesen
