@@ -70,13 +70,13 @@ function update_key($filename) {
 	}
 	else {
 		srand ((double)microtime()*1000000);
-		$key = rand(30,60);
+		//$key = rand(30,60);
+		$key=31;	// mal wieder ändern!!!
 		$fd = fopen($filename, "w");
 		fwrite($fd, $key);
 		fclose($fd);
 	}
-	//return $key;
-	return 31;	// quick-hack damit keine probz auftreten
+	return $key;
 }
 
 
