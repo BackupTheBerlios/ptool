@@ -31,12 +31,12 @@ implements MouseListener
 			if (parentTable.getName().equals("userevents")) {
 				det = new DetailsUser(Start.getMe(), parentTable.getSelectedRow(), se);
 			}
-			else {
+			else if (Base.getEventsCount() > 0) {
 				det = new DetailsMain(Start.getMe(), parentTable.getSelectedRow(), se);
 			}
 			if (Define.doDebug())
 			    new Logger("Details-Dialog ID: "+parentTable.getSelectedRow(), true);
-			det.setVisible(true);
+			if (det != null) det.setVisible(true);
 				
 				
 		}
