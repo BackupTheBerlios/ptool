@@ -27,7 +27,7 @@ public class Start
 	    Base.makeDir();
 	    
 	    conf = new Config();
-	    
+	    	    
 	    // Parameter verarbeiten & Debugging initialisieren
 	    doParameters(args);
 	    initDebug();
@@ -57,7 +57,9 @@ public class Start
 	    wnd.setVisible(true);
 	    if (conf.getSplash()) sp.endDialog();
 	    //wnd.toFront();	// bringt das was???
-
+	    
+	    if (! conf.isRecent()) Base.showBox(wnd, Help.CONFIG_TOO_OLD, 1);
+	    
 	}
   	
 
@@ -131,7 +133,7 @@ public class Start
 	        else {
 	            System.out.println("Ungueltiger Parameter \""+arg[0]+"\"");
 	            System.out.println("Aufruf: " + Define.getOwnName() + " -hvV");	
-	            System.exit(0);			
+	            System.exit(1);			
 	        }	
 	    }
 	}

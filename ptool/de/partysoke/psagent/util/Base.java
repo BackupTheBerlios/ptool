@@ -72,7 +72,7 @@ public class Base {
 	 * Gibt die angegebene "Zeile" aus dem Events-Array zurück.
 	 * @return events
 	 */
-	public static String[] getEvent(int zeile) {
+	public static String[] getEvent(int zeile) throws NullPointerException {
 		return events[zeile];
 	}
 
@@ -458,7 +458,7 @@ public class Base {
 		String today = getDate(Define.DATE_DMY);
 		
 		for (int i=0; i < tmp.length; i++) {
-			if (i>1) {
+			if (i>1) {	// i>1 überspringt die ersten beiden Zeilen(Errorcode + Datum)
 			    tmp2 = tmp[i].replaceAll("<br>"," - ").split("\\|");
 			    // Event überspringen, wenn es vergangen ist(tmp2[5] ist das Datum)
 			    if (! isOldEvent(tmp2[5], today)) {
@@ -508,23 +508,58 @@ public class Base {
 		String ver=DownloadThread.code(out.toString(),17);
 		out  = null;
 		
-		// Version analysieren
-		String[] tmp = ver.split(",");
-		int[] tmpVersion = new int[3];
-		tmpVersion[0]=Integer.parseInt(tmp[0]);
-		tmpVersion[1]=Integer.parseInt(tmp[1]);
-		tmpVersion[2]=Integer.parseInt(tmp[2]);
-		tmp  = null;
-		ver  = null;
-		
-		int [] curV=Define.getVersion();
-		if ((tmpVersion[0]>curV[0]) || (tmpVersion[1]>curV[1]) || (tmpVersion[2]>curV[2])) {
-		    Start.setNewVersion(tmpVersion);
-			return true;
+	    // Version analysieren
+		try {
+		    String[] tmp = ver.split(",");
+			int[] tmpVersion = new int[3];
+			tmpVersion[0]=Integer.parseInt(tmp[0]);
+			tmpVersion[1]=Integer.parseInt(tmp[1]);
+			tmpVersion[2]=Integer.parseInt(tmp[2]);
+			tmp  = null;
+			ver  = null;
+			
+			int [] curV=Define.getVersion();
+			if ((tmpVersion[0]>curV[0]) || (tmpVersion[1]>curV[1]) || (tmpVersion[2]>curV[2])) {
+			    Start.setNewVersion(tmpVersion);
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
-		else {
-			return false;
+		catch(NumberFormatException nfe) {
+		    return false;
 		}
+	}
+	
+	/**
+	 * Versionprüfung
+	 * @param ver
+	 * @return true, wenn ältere Version gegeben ist
+	 */
+	public static boolean parseVersionString(String ver) {
+	    // Version analysieren
+		try {
+		    String[] tmp = ver.split("\\.");
+			int[] tmpVersion = new int[3];
+			tmpVersion[0]=Integer.parseInt(tmp[0]);
+			tmpVersion[1]=Integer.parseInt(tmp[1]);
+			tmpVersion[2]=Integer.parseInt(tmp[2]);
+			tmp  = null;
+			ver  = null;
+			
+			int[] curV=Define.getVersion();
+			if ((tmpVersion[0]<curV[0]) || (tmpVersion[1]<curV[1]) || (tmpVersion[2]<curV[2])) {
+			    return true;
+			}
+			else {
+			    return false;
+			}
+		}
+		catch(NumberFormatException nfe) {
+		    return false;
+		}
+	    
 	}
 	
 	/**
@@ -955,8 +990,10 @@ public class Base {
   		    System.setProperty("http.proxyPassword", conf.getProxyPass());
   		}
   	    else {
-  	        System.setProperty("http.proxyHost", "");
-  	        System.setProperty("http.proxyPort", "");  	        
+  	        //System.setProperty("http.proxyHost", "");
+  	        //System.setProperty("http.proxyPort", "");
+  	        System.getProperties().remove("http.proxyHost");
+  	        System.getProperties().remove("http.proxyPort");
   	    }
   	    if (Define.doDebug())
   	      new Logger("Proxy-Einstellungen ge\u00E4ndert.", true);
