@@ -26,7 +26,7 @@ public class GetAddData {
 	 *
 	 */
 	public GetAddData(Config config) {
-		String[] source = DownloadThread.code(FileIO.readZippedFile(Define.getEADFileName()),config.getKey()).split("\n");
+		String[] source = DownloadThread.code(FileIO.readZippedFile(Define.getEADFileName()),config.getConst()).split("\n");
 	    
 		if (source[0].equals("FEHLER!")) { 
 				Base.showBox("Um Events eintragen zu k\u00F6nnen, musst Du erst die Orte und Bands runterladen. "+
@@ -42,8 +42,8 @@ public class GetAddData {
 				plz = source[1].split("\\|");
 				plz[plz.length-1]="";
 				bands = source[2].split("\\|");
-				bands[bands.length-1]="Andere:";
 				bands[bands.length-2]="Keine";
+				bands[bands.length-1]="Andere:";
 				orgas = source[3].split("\\|");
 				orga_ids = source[4].split("\\|");
 				orgas[orgas.length-2]="Unbekannt";
