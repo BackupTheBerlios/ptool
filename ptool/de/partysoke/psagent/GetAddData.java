@@ -54,7 +54,6 @@ public class GetAddData {
 				kats = source[8].split("\\|");
 				locsLastIndex = 0;
 				created = true;
-				
 		}
    
 	}

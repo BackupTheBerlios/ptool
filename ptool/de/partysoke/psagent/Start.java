@@ -31,10 +31,10 @@ public class Start
 	    Splash sp = null;
 	    if (conf.getSplash()) sp = new Splash();
   	
+	    
 	    // Hauptfenster erzeugen
 	    wnd = new MWnd();
-	    
-	    
+
 	    // System-Properties setzen
 	    System.setProperty("file.encoding", Define.getEncoding());
 	    setProxySettings();
