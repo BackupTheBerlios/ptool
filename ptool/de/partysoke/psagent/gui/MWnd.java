@@ -7,8 +7,11 @@ package de.partysoke.psagent.gui;
 
 
 import java.awt.*;
+import java.util.Vector;
+
 import javax.swing.*;
 import javax.swing.table.*;
+import javax.swing.tree.*;
 
 import de.partysoke.psagent.*;
 import de.partysoke.psagent.util.*;
@@ -24,6 +27,9 @@ public class MWnd extends JFrame
 {
 	private JLabel label_bottom = new JLabel(Define.getNoEvents(), JLabel.LEFT);
 	private static JTable table = new JTable();
+	private JTree tree = new JTree();
+	private JScrollPane treeSpane;
+	private DetailsTree detailsPanel;
   	private Config conf = Start.getConf();
   	private MWndHandler listener = new MWndHandler(true, this);
   	private GetAddData getData = null;
@@ -35,6 +41,7 @@ public class MWnd extends JFrame
     private JMenu ret_lf;
     private Systray systray;
     private boolean systray_active;
+    private String oldView;
     
   	/**
   	 * Konstruktor, der das Fenster aufbaut und die Komponenten lädt
@@ -42,10 +49,12 @@ public class MWnd extends JFrame
   	public MWnd()
   	{
   	    super(Define.getOwnName() + " " + Define.getVersionAsString());
-  	    getContentPane().setLayout(new BorderLayout());
+  	    getContentPane().setLayout(new BorderLayout(10, 5));
   	    JFrame.setDefaultLookAndFeelDecorated(true);
   	    this.assignIcon();
 	
+  	    oldView = conf.getView();
+  	    
   	    // Menü
   	    JMenuBar menubar = new JMenuBar();
   	    menubar.add(createFileMenu()); 
@@ -57,7 +66,7 @@ public class MWnd extends JFrame
   	    // Titel-Label, mit häßlichem Quickhack, um die Höhe zu bestimmen
   	    JPanel label_panel = new JPanel(new BorderLayout());
   	    Font font = new Font(null, Font.PLAIN, 5);
-  	    JLabel title = new JLabel(Define.getOwnName() + " - Das PartySOKe.de - Offline-Tool ", JLabel.CENTER);
+  	    JLabel title = new JLabel(Define.getOwnName() + " - Das PartySOKe.de - Offline-Tool", JLabel.CENTER);
   	    JLabel label_leer = new JLabel(" ");
 	    label_leer.setFont(font);
 	    JLabel label_leer2 = new JLabel(" ");
@@ -67,35 +76,58 @@ public class MWnd extends JFrame
   	    label_panel.add(title, BorderLayout.CENTER);
   	    label_panel.add(label_leer2, BorderLayout.SOUTH);
 	
-  	    JScrollPane scrollp = new JScrollPane(table,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	
-  	    // Tabellen-Eigenschaften
-  	    table.setName("allevents");
-  	    table.setToolTipText("Events-Tabelle");
-  	    table.addMouseListener(new MouseL(table, null));
-  	    table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-  	    table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-  	    // Renderer für Tabelle bauen
-  	    renders = new DefaultTableCellRenderer();
-  	    renders.setHorizontalAlignment(SwingConstants.CENTER);
-  	    
-  	    // Tabelle mit Werten füllen, falls vorhanden
-  	    //this.fillTable();
-
   	    
   	    // Statusbar
   	    statusBarPanel = new StatusBar(label_bottom);
   	      	    
-  	    // Zusammensetzen
+  	    // Zusammensetzen - Teil 1
   	    getContentPane().add(label_panel, BorderLayout.NORTH);
-  	    getContentPane().add(scrollp,BorderLayout.CENTER);
+
+  	    
+  	    if (conf.getView().equals("tree")) {
+  	        /* Event-Baum */
+  	  	    treeSpane = new JScrollPane(tree);
+  			this.tree.getSelectionModel().setSelectionMode(
+  			        TreeSelectionModel.SINGLE_TREE_SELECTION);
+  			this.tree.addTreeSelectionListener(listener);
+  			this.tree.expandPath(this.tree.getSelectionPath());
+  			this.tree.setRootVisible(true);
+
+  			detailsPanel = new DetailsTree();
+  	  	    
+  			JSplitPane treeSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+  			treeSplitPane.setLeftComponent(treeSpane);
+  			treeSplitPane.setRightComponent(detailsPanel);
+  			
+  			// Zusammensetzen - Teil 2
+  			getContentPane().add(treeSplitPane,BorderLayout.CENTER);
+  	  	}
+  	    else {
+  	  	    JScrollPane scrollp = new JScrollPane(table,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+  	  	    // Tabellen-Eigenschaften
+  	  	    table.setName("allevents");
+  	  	    table.setToolTipText("Events-Tabelle");
+  	  	    table.addMouseListener(new MouseL(table, null));
+  	  	    table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+  	  	    table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+  	  	    // Renderer für Tabelle bauen
+  	  	    renders = new DefaultTableCellRenderer();
+  	  	    renders.setHorizontalAlignment(SwingConstants.CENTER);
+  	  	    
+  	  	    // Zusammensetzen - Teil 2
+  	  	    getContentPane().add(scrollp,BorderLayout.CENTER);
+  	    }
+  	    
+  	    // Zusammensetzen - Teil 3
   	    getContentPane().add(statusBarPanel,BorderLayout.SOUTH);
-		
+
   	    //Window-Listener
   	    addWindowListener(listener);
 	
   	}
 
+  	
+  	
   	/**
   	 * Wechselt das L&F auf das in der Config-Datei angebenene
   	 */
@@ -132,40 +164,101 @@ public class MWnd extends JFrame
   	    Image img = getToolkit().getImage(getClass().getResource(Define.ImageIcon));
   	  	this.setIconImage(img);
    	}
+  	
   
   	/**
+  	 * Gibt das Panel zurück, in dem Event-Details in der Event-Baum-Ansicht stehen
+  	 * @return detailsPanel
+  	 */
+  	public DetailsTree getDetailsPanel() {
+  	    return detailsPanel;
+  	}
+  	
+  	
+  	/**
+  	 * wird von fillTable() aufgerufen und füllt den Event-Baum mit Daten
+  	 * @param events
+  	 */
+  	private void fillTree(String[][] events) {
+
+  	    // wenn die Blätter den Namen darstellen sollen 0, ansonsten 1
+  	    // es kommt Define.VIEW_COL_NAME oder Define.VIEW_COL_LOC zurück,
+  	    // was genau auf den Index des Arrays passt
+  	    int column = conf.getViewCol();
+  	    
+  	    // Der Baum
+	    Vector dates = new Vector();
+	    for (int i = 0; i < events.length; i++) {
+	        if (! dates.contains(events[i][2]))
+	            dates.add(events[i][2]);
+	    }
+	    DefaultMutableTreeNode root, date;
+		root = new DefaultMutableTreeNode("PartySOKe.de - Events");
+		for (int i = 0; i < dates.size(); i++) {
+			date = new DefaultMutableTreeNode(dates.get(i));
+			root.add(date);
+			for (int j = 0; j < events.length; j++) {
+			    if (events[j][2].equals(dates.get(i))) {
+			        date.add(new MyTreeNode(events[j][column], j));
+			    }
+			}
+		}
+		//JTree erzeugen
+		this.tree.setModel(new DefaultTreeModel(root));
+		this.tree.expandPath(this.tree.getSelectionPath());
+		        
+		// Baum komplett erweitern und somit in Scrollpane einpassen
+		for (int i = root.getChildCount(); i >= 1; i--) {
+		    this.tree.expandRow(i);
+	    }
+		Dimension size = this.tree.getPreferredSize();
+		size.width += 30;
+		this.treeSpane.getViewport().setPreferredSize(size);
+		
+		this.detailsPanel.changeEvent(0);
+  	}
+
+  	
+  	/**
   	 * Holt sich die Daten aus der Daten-Datei, und trägt sie in die Tabelle ein
+  	 * TODO: fillIrgendwas() machen, und daraus dann fillTable() oder fillTree()
+  	 * aufrufen
   	 */
   	public void fillTable() {
   	    boolean success = true;
   	    String[][] daten;
   	    
-  	    if (Base.check_file(this, conf)) {
+  	    if (conf.exists() && conf.isRecent() && Base.check_file(this, conf)) {
   	        daten = Base.getAll();
   	        if (daten.length == 0) {
   	            success = false;
   	        }
   	        else {
-  	            table.setRowHeight(18);
-  	  	    	table.setModel(new JTModel(Define.getSpalten(), daten));
-    	        //Base.calcColumnWidths(table);
-    		    // Spalten-Eigenschaften anpassen
-  	  	    	readColumnWidths();
-  	  	    	TableColumnModel c = table.getColumnModel();
-    	        //c.addColumnModelListener(listener);
-    		    TableColumn col;
-    		    // Datum
-    		    col = c.getColumn(2);
-    		    col.setResizable(false);
-    		    col.setCellRenderer(renders);
-    		    col.setMaxWidth(80);
-    		    col.setPreferredWidth(80);
-    		    // Kategorie
-    		    col = c.getColumn(3);
-    		    col.setResizable(false);
-    		    col.setCellRenderer(renders);
-    		    col.setMaxWidth(50);
-    		    col.setPreferredWidth(50);
+  	            if (conf.getView().equals("tree")) {
+  	                this.fillTree(daten);
+  	            }
+  	            else {
+  	                table.setRowHeight(18);
+  	                table.setModel(new JTModel(Define.getSpalten(), daten));
+  	                //Base.calcColumnWidths(table);
+  	                // Spalten-Eigenschaften anpassen
+  	                readColumnWidths();
+  	                TableColumnModel c = table.getColumnModel();
+  	                //c.addColumnModelListener(listener);
+  	                TableColumn col;
+  	                // Datum
+  	                col = c.getColumn(2);
+  	                col.setResizable(false);
+  	                col.setCellRenderer(renders);
+  	                col.setMaxWidth(80);
+  	                col.setPreferredWidth(80);
+  	                // Kategorie
+  	                col = c.getColumn(3);
+  	                col.setResizable(false);
+  	                col.setCellRenderer(renders);
+  	                col.setMaxWidth(50);
+  	                col.setPreferredWidth(50);
+  	            }
 	            
   	        }
   	        label_bottom.setText(" Stand des Datenbestands: " + Base.getTimeOfArray());
@@ -178,15 +271,22 @@ public class MWnd extends JFrame
   	    
   	    if (!success) {
             // Keine Events vorhanden (kein Download, Daten zu alt, ...)
-            daten = new String[1][1];
-            daten[0][0] = "Keine Daten vorhanden! Daten-Update erforderlich";
-            table.setRowHeight(50);
-            
-            table.setModel(new JTModel(new String[1], daten));
-            // Zelleninhalt zentrieren
-            DefaultTableCellRenderer render = new DefaultTableCellRenderer();
-            render.setHorizontalAlignment(SwingConstants.CENTER);
-            table.getColumnModel().getColumn(0).setCellRenderer(render);
+            daten = new String[1][3];
+            if (conf.getView().equals("tree")) {
+                daten[0][0] = "Fehler!";
+                daten[0][2] = "Fehler!";
+                fillTree(daten);
+            }
+            else {
+                daten[0][0] = "Keine Daten vorhanden! Daten-Update erforderlich";
+                table.setRowHeight(50);
+                
+                table.setModel(new JTModel(new String[1], daten));
+                // Zelleninhalt zentrieren
+                DefaultTableCellRenderer render = new DefaultTableCellRenderer();
+                render.setHorizontalAlignment(SwingConstants.CENTER);
+                table.getColumnModel().getColumn(0).setCellRenderer(render);
+            }
 
   	    }
   	    
@@ -339,15 +439,18 @@ public class MWnd extends JFrame
 	}
 	
 	/**
-	 * Liest den Status für den Menüpunkt "News lesen" neu ein
+	 * Liest den Status für den Menüpunkt "News lesen" (0), "Events drucken"(1) und
+	 * "Eigenes Event eintragen" neu ein
 	 */
 	public void updateFileMenuNews() {
 	    if (Base.getEventsCount() < 1) {
 	        this.ret_fm.getItem(0).setEnabled(false);
+	        this.ret_fm.getItem(1).setEnabled(false);
 	        this.ret_em.getItem(0).setEnabled(false);
 	    }
 	    else {
 	        this.ret_fm.getItem(0).setEnabled(true);
+	        this.ret_fm.getItem(1).setEnabled(true);
 	        this.ret_em.getItem(0).setEnabled(true);
 	    }
 	}
@@ -397,15 +500,22 @@ public class MWnd extends JFrame
 	
     /**
      * Ließt die Spaltenbreiten ein, und ändert sie in der Tabelle
+     * TODO: evtl. auftretende Exception untersuchen, wie kann die auftreten???
      */
 	private void readColumnWidths() {
         TableColumnModel c = table.getColumnModel();
 	    TableColumn col;
 	    int[] widths = conf.getColumnWidths();
         if (widths[0] != -1) {
-            for (int i = 0; i < c.getColumnCount(); i++) {
-                col = c.getColumn(i);
-                col.setPreferredWidth(widths[i]);
+            try {
+                for (int i = 0; i < c.getColumnCount(); i++) {
+                    col = c.getColumn(i);
+                    col.setPreferredWidth(widths[i]);
+                }
+            }
+            catch (ArrayIndexOutOfBoundsException e) {
+               new Logger("Schreibe bitte eine Mail an info@partsoke.de" +
+                       		"mit dieser Ausgabe! Bitte, das ist wichtig.\n" + e); 
             }
          }
     }
@@ -414,8 +524,9 @@ public class MWnd extends JFrame
 	 * Schließt das Hauptfenster, und beendet das Programm.
 	 */
 	public void shutDown() {
-	    this.saveColumnWidths();
 	    this.setVisible(false);
+	    if (this.oldView.equals("table") && table.getColumnCount() > 1)
+	        this.saveColumnWidths();
 	    if (this.conf.getSaveWinInfo()) this.conf.setWinInfo(this.getBounds());
 	    this.conf.writeFile();
 		this.dispose();
