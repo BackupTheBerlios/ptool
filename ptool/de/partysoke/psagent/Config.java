@@ -23,7 +23,27 @@ public class Config {
     private final String name = Define.getOwnName();
 
     /** OS-Ermittlung */
-    private String sys = Base.getOS() == Define.WINDOWS_OS ? "1" : "0"; 
+    private final String sys = Base.getOS() == Define.WINDOWS_OS ? "1" : "0"; 
+    
+    /** Value-Indizes-Mapping (Ersatz für String-Indizes) */
+    private final int INDEX_CONST = 0;
+    private final int INDEX_LF = 1;
+    private final int INDEX_WININFO = 2;
+    private final int INDEX_WININFOUE = 3;
+    private final int INDEX_WINSAVE = 4;
+    private final int INDEX_AUTO = 5;
+    private final int INDEX_SPLASH = 6;
+    private final int INDEX_SYSTRAY = 7;
+    private final int INDEX_USER = 8;
+    private final int INDEX_PASS = 9;
+    private final int INDEX_EMAIL = 10;
+    private final int INDEX_URL = 11;
+    private final int INDEX_TEL = 12;
+    private final int INDEX_PHOST = 13;
+    private final int INDEX_PPORT = 14;
+    private final int INDEX_PUSER = 15;
+    private final int INDEX_PPASS = 16;
+    
     
     /** 
      * 2D-String-Array, beinhaltet alle Config-Variablen, Struktur:<br>
@@ -32,7 +52,8 @@ public class Config {
     private String[][] values = { 
 	        { name, "const", ""},
 			{ name, "lf", "win"},
-			{ name, "wininfo", Define.getWininfo()},
+			{ name, "wininfo", Define.getWinInfo()},
+			{ name, "wininfo_ue", Define.getWinInfoUE()},
 			{ name, "win_save", "1"},
 			{ name, "auto_upload", "0"},
 			{ name, "splash", "1"},
@@ -73,7 +94,7 @@ public class Config {
 	 * @return wini
 	 */
 	public Rectangle getWinInfo() {
-	    String[] tmp = values[2][2].split(",");
+	    String[] tmp = values[INDEX_WININFO][2].split(",");
 	    try {
 	        return new Rectangle(Integer.parseInt(tmp[0]),Integer.parseInt(tmp[1]),Integer.parseInt(tmp[2]),Integer.parseInt(tmp[3]));
 	    }
@@ -82,7 +103,7 @@ public class Config {
 		        new Logger("Warnung: Config enthielt Fehler (wininfo).", true);
 		        new Logger(e.toString(), true);
 		    }
-	        String[] tmp_2 = Define.getWininfo().split(",");
+	        String[] tmp_2 = Define.getWinInfo().split(",");
 	        return new Rectangle(Integer.parseInt(tmp_2[0]),Integer.parseInt(tmp_2[1]),Integer.parseInt(tmp_2[2]),Integer.parseInt(tmp_2[3]));
 	    }
 	}
@@ -92,7 +113,34 @@ public class Config {
 	 * @param wini
 	 */
 	public void setWinInfo(Rectangle wini) {
-		values[2][2]=wini.x + "," + wini.y + "," + wini.width + "," + wini.height;
+		values[INDEX_WININFO][2]=wini.x + "," + wini.y + "," + wini.width + "," + wini.height;
+	}
+	
+	/**
+	 * Gibt die in der INI-Datei gespeicherte Fenster-Geometrie(Eintrags-Fenster) zurück
+	 * @return wini
+	 */
+	public Point getWinInfoUE() {
+	    String[] tmp = values[INDEX_WININFOUE][2].split(",");
+	    try {
+	        return new Point(Integer.parseInt(tmp[0]),Integer.parseInt(tmp[1]));
+	    }
+	    catch(Exception e) {
+		    if (Define.doDebug()) {
+		        new Logger("Warnung: Config enthielt Fehler (wininfo_ue).", true);
+		        new Logger(e.toString(), true);
+		    }
+	        String[] tmp_2 = Define.getWinInfo().split(",");
+	        return new Point(Integer.parseInt(tmp_2[0]),Integer.parseInt(tmp_2[1]));
+	    }
+	}
+	
+	/**
+	 * Setzt die Fenster-Geometrie(Eintrags-Fenster)
+	 * @param wini
+	 */
+	public void setWinInfoUE(Point wini) {
+		values[INDEX_WININFOUE][2]=wini.x + "," + wini.y;
 	}
 	
 	
@@ -101,7 +149,7 @@ public class Config {
 	 * @return telnr
 	 */
 	public String getTelNr() {
-		return values[11][2];
+		return values[INDEX_TEL][2];
 	}
 	
 	/**
@@ -110,7 +158,7 @@ public class Config {
 	 */
 	public void setTelNr(String telnr) {
 		if (telnr.length()>0) {
-		    values[11][2]=telnr;
+		    values[INDEX_TEL][2]=telnr;
 		}
 	}
 	
@@ -119,7 +167,7 @@ public class Config {
 	 * @return splash
 	 */
 	public boolean getSplash() {
-	    if (values[5][2].equals("0")) return false;
+	    if (values[INDEX_SPLASH][2].equals("0")) return false;
 	    else return true;
 	}
 	
@@ -128,8 +176,8 @@ public class Config {
 	 * @param show
 	 */
 	public void setSplash(boolean show) {
-		if (show) values[5][2]="1";
-		else values[5][2]="0";
+		if (show) values[INDEX_SPLASH][2]="1";
+		else values[INDEX_SPLASH][2]="0";
 	}
 	
 	/**
@@ -137,7 +185,7 @@ public class Config {
 	 * @return update
 	 */
 	public boolean getAutoUpdate() {
-	    if (values[4][2].equals("0")) return false;
+	    if (values[INDEX_AUTO][2].equals("0")) return false;
 	    else return true;
 	}
 	
@@ -146,26 +194,26 @@ public class Config {
 	 * @param update
 	 */
 	public void setAutoUpdate(boolean update) {
-		if (update) values[4][2]="1";
-		else values[4][2]="0";
+		if (update) values[INDEX_AUTO][2]="1";
+		else values[INDEX_AUTO][2]="0";
 	}
 	
 	/**
-	 * userEvents bei Download uploaden?
-	 * @return update
+	 * Systray-Support aktivieren?
+	 * @return systray
 	 */
 	public boolean getSystray() {
-	    if (values[6][2].equals("0")) return false;
+	    if (values[INDEX_SYSTRAY][2].equals("0")) return false;
 	    else return true;
 	}
 	
 	/**
-	 * userEvents bei Download uploaden?
-	 * @param update
+	 * Systray-Support aktivieren?
+	 * @param systray
 	 */
-	public void setSystray(boolean update) {
-		if (update) values[6][2]="1";
-		else values[6][2]="0";
+	public void setSystray(boolean systray) {
+		if (systray) values[INDEX_SYSTRAY][2]="1";
+		else values[INDEX_SYSTRAY][2]="0";
 	}
 	
 	/**
@@ -173,7 +221,7 @@ public class Config {
 	 * @return save
 	 */
 	public boolean getSaveWinInfo() {
-	    if (values[3][2].equals("0")) return false;
+	    if (values[INDEX_WINSAVE][2].equals("0")) return false;
 	    return true;
 	}
 	
@@ -182,8 +230,8 @@ public class Config {
 	 * @param save
 	 */
 	public void setSaveWinInfo(boolean save) {
-		if (save) values[3][2]="1";
-		else values[3][2]="0";
+		if (save) values[INDEX_WINSAVE][2]="1";
+		else values[INDEX_WINSAVE][2]="0";
 	}
 	
 	/**
@@ -191,7 +239,7 @@ public class Config {
 	 * @return homepage
 	 */
 	public String getUrl() {
-		return values[10][2];
+		return values[INDEX_URL][2];
 	}
 	
 	/**
@@ -200,7 +248,7 @@ public class Config {
 	 */
 	public void setUrl(String url) {
 		if (url.length()>0) {
-		    values[10][2]=url;
+		    values[INDEX_URL][2]=url;
 		}
 	}
 	
@@ -209,7 +257,7 @@ public class Config {
 	 * @return email
 	 */
 	public String geteMail() {
-		return values[9][2];
+		return values[INDEX_EMAIL][2];
 	}
 	
 	/**
@@ -218,7 +266,7 @@ public class Config {
 	 */
 	public void seteMail(String email) {
 		if (email.length()>0) {
-		    values[9][2]=email;
+		    values[INDEX_EMAIL][2]=email;
 		}
 	}
 	
@@ -227,7 +275,7 @@ public class Config {
 	 * @return proxyHost
 	 */
 	public String getProxyHost() {
-		return values[12][2];
+		return values[INDEX_PHOST][2];
 	}
 	
 	/**
@@ -235,7 +283,7 @@ public class Config {
 	 * @param proxyHost
 	 */
 	public void setProxyHost(String proxyHost) {
-	    values[12][2]=proxyHost;
+	    values[INDEX_PHOST][2]=proxyHost;
 	}
 	
 	/**
@@ -243,7 +291,7 @@ public class Config {
 	 * @return proxyHost
 	 */
 	public String getProxyPort() {
-		return values[13][2];
+		return values[INDEX_PPORT][2];
 	}
 	
 	/**
@@ -251,7 +299,7 @@ public class Config {
 	 * @param proxyPort
 	 */
 	public void setProxyPort(String proxyPort) {
-	    values[13][2]=proxyPort;
+	    values[INDEX_PPORT][2]=proxyPort;
 	}
 	
 	/**
@@ -259,7 +307,7 @@ public class Config {
 	 * @return proxyUser
 	 */
 	public String getProxyUser() {
-		return values[14][2];
+		return values[INDEX_PUSER][2];
 	}
 	
 	/**
@@ -267,7 +315,7 @@ public class Config {
 	 * @param proxyHost
 	 */
 	public void setProxyUser(String proxyUser) {
-	    values[14][2]=proxyUser;
+	    values[INDEX_PUSER][2]=proxyUser;
 	}
 	
 	/**
@@ -275,7 +323,7 @@ public class Config {
 	 * @return proxyUser
 	 */
 	public String getProxyPass() {
-		return values[15][2];
+		return values[INDEX_PPASS][2];
 	}
 	
 	/**
@@ -283,7 +331,7 @@ public class Config {
 	 * @param proxyHost
 	 */
 	public void setProxyPass(String proxyPass) {
-	    values[15][2]=proxyPass;
+	    values[INDEX_PPASS][2]=proxyPass;
 	}
 	
 	/**
@@ -291,7 +339,7 @@ public class Config {
 	 * @return password
 	 */
 	public String getPassword() {
-		return values[8][2];
+		return values[INDEX_PASS][2];
 	}
 
 	/**
@@ -306,7 +354,7 @@ public class Config {
 				byte[] tmp = md.digest();
 				String new_pw="";
 				for (int i = 0; i < tmp.length; ++i) {	new_pw+=Base.toHexString(tmp[i]); }
-				values[8][2]=new_pw;
+				values[INDEX_PASS][2]=new_pw;
 			}
 			catch (NoSuchAlgorithmException e) { 
 				if (Define.doDebug()) { 
@@ -321,7 +369,7 @@ public class Config {
 	 * @return username
 	 */
 	public String getUsername() {
-		return values[7][2];
+		return values[INDEX_USER][2];
 	}
 	
 	/**
@@ -330,7 +378,7 @@ public class Config {
 	 */
 	public void setUsername(String user) {
 		if (user.length()>4) {
-		    values[7][2]=user;
+		    values[INDEX_USER][2]=user;
 		}
 	}
 	
@@ -339,7 +387,7 @@ public class Config {
 	 * @return L&F
 	 */
 	public String getLF() {
-		return values[1][2];
+		return values[INDEX_LF][2];
 	}
 	
 	/**
@@ -347,21 +395,21 @@ public class Config {
 	 * @param key
 	 */
 	public void setLF(String laf) {
-	    values[1][2]=laf;
+	    values[INDEX_LF][2]=laf;
 	}
 	
 	
 	/**
-	 * Gibt den Key zurück
-	 * @return key
+	 * Gibt die Konstante zurück
+	 * @return const
 	 */
-	public int getKey() {
+	public int getConst() {
 		try {
-			return Integer.parseInt(DownloadThread.getKeyFromSave(values[0][2]));
+			return Integer.parseInt(DownloadThread.getConstFromSave(values[INDEX_CONST][2]));
 		}
 		catch (Exception e) {
 			if (Define.doDebug>1) {
-			    new Logger("Failed Key: " + values[0][2], true);
+			    new Logger("Failed const: " + values[INDEX_CONST][2], true);
 			    new Logger(e.toString(), true);
 			}
 			return 0;
@@ -369,15 +417,15 @@ public class Config {
 	}
 	
 	/**
-	 * Setzt den Key auf den angegebenen
-	 * @param key
+	 * Setzt die Konstante auf die angegebene
+	 * @param const
 	 * @return boolean
 	 */
-	public boolean setKey(String key) {
-		if (!key.equals("")) {
-		    values[0][2]=DownloadThread.getKeyToSave(key);
+	public boolean setConst(String data) {
+		if (!data.equals("")) {
+		    values[INDEX_CONST][2]=DownloadThread.getKeyToSave(data);
 			if (Define.doDebug>1) {	// Debug-Mode
-			    new Logger("saved Key:" + values[0][2], true);
+			    new Logger("saved Key:" + values[INDEX_CONST][2], true);
 			}
 			return true;
 		}
