@@ -9,7 +9,7 @@
  * Meldungen:
  * 1 Datenbank-Verbindung nicht möglich
  * 2 Fehlerhafte User-Daten
- * 
+ *
  * "Netzcodes"
  * nc = 1 => Schlüssel holen
  * nc = 2 => Versionskontrolle
@@ -154,6 +154,7 @@ while (list($id,$kategorie,$name,$datum,$ort,$plz,$kreis,$lid,$loc_alt,$vid,$zei
 	// Ort und Location zusammen setzen, wenn Location vorhanden
 	if ($loca!="") { $ort_loca="$ort / $loca"; }
 	else { $ort_loca=$ort; }
+	$text = str_replace("\n", ", ", $text);
 
 	// Den ganzen Schrutz ausgeben
 	$all.="\n$id|$name|$ort_loca|$kategorie|$band|$datum|$plz|$kreis|$vid|$zeit|$text|$cost|$flyerlnk|$datum_modify";
