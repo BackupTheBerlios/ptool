@@ -5,6 +5,7 @@
 
 package de.partysoke.psagent.gui;
 
+import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -13,16 +14,14 @@ import javax.swing.text.*;
 import de.partysoke.psagent.*;
 import de.partysoke.psagent.util.*;
 
-class AddWndStep1
-extends JDialog
-implements ActionListener
+import com.pallas.swing.date.*;
+
+class AddWndStep1 extends JDialog implements ActionListener
 {
 	private JTextField text_name;
 	private JTextField text_ort;
 	private String[][] ortarray;
-	private JFormattedTextField text_tag;
-	private JFormattedTextField text_monat;
-	private JFormattedTextField text_jahr;
+	private DateComboBox dbc;
 	private JTextField text_bnd;
 	private JList list_bnd;
 	private JComboBox cb_ort;
@@ -40,7 +39,8 @@ implements ActionListener
 	private AddData adddata;
 	private GetAddData getdata;
 	private MWnd parent;
-	
+	private Date now;
+	private Calendar edate;
     
     // Konstruktor
     public AddWndStep1(MWnd parent_tmp, GetAddData data, AddData adata) {
@@ -51,6 +51,7 @@ implements ActionListener
     	parent = parent_tmp;
 		adddata = adata;
 		getdata = data;
+		now = new Date();
 		
         this.getContentPane().setLayout(customLayout);
         
@@ -87,10 +88,10 @@ implements ActionListener
 
         label_datum = new JLabel("Datum");
         this.getContentPane().add(label_datum);
-
-        text_tag = new JFormattedTextField(createFormatter("##"));
-        this.getContentPane().add(text_tag);
-
+        
+        dbc = new DateComboBox(new Date(), "dd.MM.yyyy");
+        this.getContentPane().add(dbc);
+        
         label_bnd = new JLabel("Band(s)");
         this.getContentPane().add(label_bnd);
 
@@ -119,12 +120,6 @@ implements ActionListener
         button_cancel = new JButton("Abbrechen");
         button_cancel.addActionListener(this);
 		this.getContentPane().add(button_cancel);
-
-        text_monat = new JFormattedTextField(createFormatter("##"));
-        this.getContentPane().add(text_monat);
-
-        text_jahr = new JFormattedTextField(createFormatter("####"));
-        this.getContentPane().add(text_jahr);
 
         setSize(this.getPreferredSize());
         
@@ -173,8 +168,9 @@ implements ActionListener
 				allOk=false;
 			} 
     	}
-    	// Tag prüfen
-    	String txt_tag = text_tag.getText();
+    	// Datum prüfen
+    	dateOk = dbc.getDate().after(now);
+    	/*String txt_tag = text_tag.getText();
     	if (txt_tag.length()>0 && txt_tag.length()<3) {
     		int tag=0;
     		try { tag = Integer.parseInt(txt_tag); }
@@ -206,6 +202,7 @@ implements ActionListener
     	else {
     		dateOk=false;
     	}
+		*/
 		if (allOk && !dateOk) { 
 			Base.showBox(this,  "Bitte gebe ein g\u00FCltiges Datum an!", 4);
 			allOk=false;
@@ -233,6 +230,9 @@ implements ActionListener
     	
     	if (event.getActionCommand().equals("Weiter")) {
 			if (checkForms()) {
+			    edate = Calendar.getInstance();
+				edate.setTime(dbc.getDate());
+				
 			    String ort = text_ort.getText();
 			    String plz = "";
 				if (ort.equals("")) {
@@ -248,8 +248,8 @@ implements ActionListener
 						else bands+=tmp[i].toString()+", ";
 					}
 				}
-				adddata.setStep1(text_name.getText(), ort, plz, Integer.parseInt(text_tag.getText()),  Integer.parseInt(text_monat.getText()), 
-												Integer.parseInt(text_jahr.getText()), bands, cb_kat.getSelectedItem().toString());
+				adddata.setStep1(text_name.getText(), ort, plz, edate.get(Calendar.DAY_OF_MONTH),  edate.get(Calendar.MONTH) + 1, 
+				        		 edate.get(Calendar.YEAR), bands, cb_kat.getSelectedItem().toString());
 				endDialog();
 				
 			}	// if (checkforms())
