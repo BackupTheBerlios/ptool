@@ -42,13 +42,14 @@ public class IniWriter {
         fill();
     }
     
-    public void fill() {
+    private void fill() {
         boolean matched;
         for (int i=0; i < values.length; i++) {
             // suche zeile in der key is, und ersetze value
             matched = false;
             for (int j=0; j < inhalt.length; j++) {
-                if (inhalt[j].startsWith(values[i][1])) {
+                //if (inhalt[j].startsWith(values[i][1])) {	// scheiß Lösung, mit startsWith
+                if (inhalt[j].split("=")[0].equals(values[i][1])) {
                     inhalt[j]=values[i][1] + "=" + values[i][2];
                     matched = true;
                 }
@@ -71,12 +72,13 @@ public class IniWriter {
     }
     
     private void createNewConfigFile() throws IOException {
-        Writer newFile = new BufferedWriter(new FileWriter(fileName));
+        BufferedWriter newFile = new BufferedWriter(new FileWriter(fileName));
         newFile.write("; " + Define.getOwnName() + " - ConfigFile\n");
         newFile.write("; Datei wird automatisch erzeugt,  nicht ver\u00E4ndern!\n");
         newFile.write("[" + Define.getOwnName() + "]\n");
-        for (int i = 0; i < values.length; i++)
+        for (int i = 0; i < values.length; i++) {
             newFile.write(values[i][1] + "=\n");
+        }
         newFile.close();
     }
 }
