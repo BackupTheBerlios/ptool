@@ -15,8 +15,8 @@ import de.partysoke.psagent.util.*;
 public class DownloadThread extends Thread
 {
 	// Klassenvariablen
-    //protected static String addr = "http://ptool.berlios.de/ptool_web/";
-    protected static String addr = "http://mars.lan.eht:666/ptool_web/";		// nur für Testzwecke
+    protected static String addr = "http://ptool.berlios.de/ptool_web/";
+    //protected static String addr = "http://mars.lan.eht:666/ptool_web/";		// nur für Testzwecke
 	private static final String file1 = "ptool-";
 	private static final String file2 = "getead-";
 	protected static final String file3 = "sendUE-";
