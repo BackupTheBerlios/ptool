@@ -42,7 +42,7 @@ public class DetailsMain extends Details implements ActionListener {
 		panel.add(upPanel, BorderLayout.NORTH);
 		panel.add(mainPanel, BorderLayout.CENTER);
 		panel.add(button_panel, BorderLayout.SOUTH);
-		this.add(panel, BorderLayout.CENTER);
+		this.getContentPane().add(panel, BorderLayout.CENTER);
 
 	}
 
@@ -57,7 +57,7 @@ public class DetailsMain extends Details implements ActionListener {
 			"<tr><td valign=\"top\"><font face=\"Verdana\"><b>PLZ Ort:</b></font></td>"+
 			"<td><font face=\"Verdana\">"+in[6]+" "+in[2]+"</font></td></tr>"+
 			"<tr><td valign=\"top\"><font face=\"Verdana\"><b>Kreis:</b></font></td>"+
-			"<td><font face=\"Verdana\">"+in[7]+"</font></td></tr>";
+			"<td><font face=\"Verdana\">"+in[7].toUpperCase()+"</font></td></tr>";
 	}
 	
 	

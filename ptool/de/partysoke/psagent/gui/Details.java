@@ -11,7 +11,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 abstract class Details
-extends Dialog
+extends JDialog
 implements ActionListener
 {
   //private String lastModified = "";
@@ -22,7 +22,7 @@ implements ActionListener
 	super(parent,"Details",true);
 	Point parloc = parent.getLocation();
 	setBounds(parloc.x + 30, parloc.y + 30,400,380);
-	setLayout(new BorderLayout());
+	this.getContentPane().setLayout(new BorderLayout());
 
 	String[] spalte = this.getSpalte(id, se);
 	

@@ -69,7 +69,7 @@ public class DetailsUser extends Details implements ActionListener {
 		panel.add(upPanel, BorderLayout.NORTH);
 		panel.add(mainPanel, BorderLayout.CENTER);
 		panel.add(button_panel, BorderLayout.SOUTH);
-		this.add(panel, BorderLayout.CENTER);
+		this.getContentPane().add(panel, BorderLayout.CENTER);
 
 	}
 	
