@@ -7,8 +7,11 @@
 package de.partysoke.psagent.gui;
 
 import java.awt.event.*;
+
 import javax.swing.event.*;
 import javax.swing.table.*;
+
+import com.jeans.trayicon.TrayIconPopupSimpleItem;
 
 import de.partysoke.psagent.*;
 import de.partysoke.psagent.util.*;
@@ -28,34 +31,66 @@ public class MWndHandler extends WindowClosingAdapter implements ActionListener,
 	{
 
 	  	String cmd = event.getActionCommand();
+        if (src.isSystray_active()) {
+            // das ist eine Art Wrapper, um die Kommandos aus dem Systray
+            // hier verfügbar zu machen, very dirty!!!
+            try {
+                TrayIconPopupSimpleItem sys = (TrayIconPopupSimpleItem)event.getSource();
+                cmd = sys.getName();
+            }
+	  		catch(ClassCastException e) {}
+        }
 		
 	  	if (cmd.equals("Daten herunterladen")) {
-			Update dlg = new Update(src);
+			Update dlg = new Update(src, Define.EVENTDOWNLOAD);
 			dlg.setVisible(true);
 			// Tabelle mit neuen Werten "updaten", nur wenn
 			// Vorgang nicht abgebrochen wurde 
 			if (! dlg.isCanceled()) {
 			    src.fillTable();
 				// Event-Rohdaten neu einlesen
-			    src.createGetData();
+			    try {
+			        src.createGetData();
+			    }
+			    catch(RuntimeException e) {
+			        if (Define.doDebug > 1) new Logger(e.toString());
+			    }
 			}
 			dlg = null;
+			src.updateFileMenuNews();
 		}
 	  	else if (cmd.equals("Eigene Events hochladen")) {
 			// füllen!!!			
+			Update dlg = new Update(src, Define.EVENTUPLOAD);
+			dlg.setVisible(true);
+	  	    
+	  	    /*if (this.running && Base.getUserEventsCount() > 0) {
+		        rc = sendUserEvents();
+		        parent.ProgressBarNext(15);
+		    }
+		    else {
+		        rc = -1;
+		        parent.ProgressBarNext(15);
+		    }
+		    */
+		    
+	  	    
+	  	    Base.readUserEventsCount();
+			src.updateStatusBarEventlabel();
 		}
 	  	else if (cmd.equals("News lesen")) {
 			
-			String text = Base.parseNews();
+			/*String text = ;
 			if (text.equals("")) {
 				Base.showBox("Es sind noch keine News verf\u00FCgbar. Klicke bitte auf \"Update\", um Dir die Daten herunterzuladen.",1);
 			}
 			else {
-				News news = new News(src, text);
+				*/
+	  	    	News news = new News(src, Base.parseNews());
 				news.setVisible(true);
 				news = null;
-			}
-			text = null;
+			//}
+			//text = null;
 		}
 		else if (cmd.equals("Event eintragen")) {
 			

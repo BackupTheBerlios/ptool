@@ -1,22 +1,22 @@
 /*
  * Created on 17.12.2003
  * by Enrico Tröger
-  */
+ */
 
 
 package de.partysoke.psagent.gui;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 
 import de.partysoke.psagent.*;
 import de.partysoke.psagent.util.*;
 import de.partysoke.psagent.download.*;
 
-public class DownDialog
-extends JDialog
-implements ActionListener
+
+public class DownDialog extends JDialog implements ActionListener
 {
 	private Config conf = Start.getConf();
 	private Update parent;
@@ -97,8 +97,8 @@ implements ActionListener
 		//endDialog();
 		this.parent.setCanceled();
 	    try {
-		    this.th.destroy();
-		    this.th.interrupt();	// ka ob das nötig is
+	        this.th.destroy();
+	        this.th.interrupt();	// ka ob das nötig is
 		    this.th = null;
 		    this.button.setText("Schlie\u00DFen");
 		    this.bar.setIndeterminate(false);
@@ -114,28 +114,25 @@ implements ActionListener
   public void ProgressBarNext(int value) {
     bar.setValue(bar.getValue()+value);
   	if (Define.doDebug() && bar.getValue()<100)
-  		Base.LogThis("Download-Fortschritt: " + bar.getValue() + "%");
+  	  new Logger("Download-Fortschritt: " + bar.getValue() + "%");
   }
   
  
-  // tmp als string[] !!!
-  public void finish(String key, int surc, String tmp) {
-  	int action = surc;
-  	System.out.println("Action: " + action);
+  public void finish(String key, String fail) {
+  	int action = 0;
   	this.button.setText("Schlie\u00DFen");
   	if (conf.setKey(key)) {
   	  this.lab.setText("Fertig!");
 	}
 	else {
 		this.lab.setText("Es ist ein Fehler aufgetreten.");
-		action = -5;
-		Base.LogThis("setKey() == false");
+		if (fail.equals("1")) action = -3;
+		else if (fail.equals("2")) action = -2;
+		else action = -5;
+		new Logger("setKey() == false");
 	}	
   	
-  	if (action == 1 && tmp != null) {
-  	    Base.showBox(parent, Define.getFailedEvent() + " " + tmp, 2);
-  	}
-  	else if (action == -2) Base.showBox(parent, Define.getWrongUser(), 2);
+  	if (action == -2) Base.showBox(parent, Define.getWrongUser(), 2);
   	else if (action == -3) Base.showBox(parent, Define.getNoDBCon(), 2);
   	else if (action == -4) Base.showBox(parent, Define.getMiscFailure(), 2);
   	else if (action == -5) Base.showBox(parent, Define.getNoCon(), 2);

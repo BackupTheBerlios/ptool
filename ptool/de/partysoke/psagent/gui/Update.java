@@ -17,11 +17,11 @@ class Update
 extends JDialog
 implements ActionListener
 {
-    private boolean canceled = false;
+  private boolean canceled = false;
     
-  public Update(JFrame parent)
+  public Update(JFrame parent, int mode)
   {
-	super(parent,"Daten herunterladen",true);
+	super(parent, Define.getUpdateTitle(mode), true);
 	Point parloc = parent.getLocation();
 	setBounds(parloc.x + 30, parloc.y + 30,400,110);
 	setBackground(Color.lightGray);
@@ -30,11 +30,18 @@ implements ActionListener
 	//JPanel
 	JPanel panel = new JPanel(new BorderLayout());
 	JPanel lab_panel = new JPanel(new BorderLayout());
-	JLabel lab = new JLabel("Daten jetzt aus dem Internet herunterladen?",JLabel.CENTER);
+	JLabel lab;
+	if (mode == Define.EVENTDOWNLOAD) 
+	    lab = new JLabel("Daten jetzt aus dem Internet herunterladen?",JLabel.CENTER);
+	else 
+	    lab = new JLabel("Eigene Events jetzt auf PartySOKe.de eintragen?",JLabel.CENTER);
+
 	lab_panel.add(lab, BorderLayout.NORTH);
 	lab_panel.add(new JLabel("(Eine Verbindung zum Internet muss bereits bestehen)",JLabel.CENTER), BorderLayout.CENTER);
 	lab_panel.add(new JLabel(" "), BorderLayout.SOUTH);
-	JButton button = new JButton("Download");
+	JButton button;
+	if (mode == Define.EVENTDOWNLOAD) button = new JButton("Download");
+	else button = new JButton("Weiter");
 	
 	//Ende-Button-Panel
 	JPanel button_panel = new JPanel(new FlowLayout());
@@ -77,6 +84,17 @@ implements ActionListener
 			d.setVisible(true);
 		}
 	 }
+	if (event.getActionCommand().equals("Weiter")) {
+		Config conf = Start.getConf();
+		if (conf.getUsername().equals("") || conf.getPassword().equals("")) {
+			Base.showBox(this, "Deine Benutzerdaten sind falsch.",1);
+			endDialog();
+		}
+		else {
+			UploadDialog u = new UploadDialog(this);
+			u.setVisible(true);
+		}
+	 }
   }
 
 
@@ -101,4 +119,5 @@ implements ActionListener
   public void setCanceled() {
       this.canceled = true;
   }
+  
 }

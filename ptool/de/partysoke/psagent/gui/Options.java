@@ -29,8 +29,10 @@ implements ActionListener, KeyListener
   private JTextField txt_pport = new JTextField();
   private JTextField txt_puser = new JTextField();
   private JTextField txt_ppass = new JTextField();
-  private JCheckBox spr = new JCheckBox("Splashscreen aktivieren", false);
-  private JCheckBox swi = new JCheckBox("Fenster-Position speichern", false);
+  private JCheckBox spr = new JCheckBox("Splashscreen aktivieren", conf.getSplash());
+  private JCheckBox sys= new JCheckBox("Icon im Systray anzeigen(nur unter Windows)", conf.getSystray());
+  private JCheckBox swi = new JCheckBox("Fenster-Position speichern", conf.getSaveWinInfo());
+  private JCheckBox aup= new JCheckBox("Automatischer Upload eigener Events bei Download", conf.getAutoUpdate());
 
   public Options(MWnd parent)
   {
@@ -86,16 +88,19 @@ implements ActionListener, KeyListener
 	p_top_panel.add(p_south_panel,BorderLayout.CENTER);
 	
 	// Sonstige Optionen
-	if (conf.getSplash()) spr.setSelected(true);
-	if (conf.getSaveWinInfo()) swi.setSelected(true);
-	
 	JPanel misc_top_panel = new JPanel(new BorderLayout());
 	
 	JPanel misc_north_panel = new JPanel(new BorderLayout());
 	misc_north_panel.add(new JLabel("\n"), BorderLayout.NORTH);
-	// Bei der nächsten Option muss ein LayoutManager her!
-	misc_north_panel.add(spr, BorderLayout.CENTER);
-	misc_north_panel.add(swi, BorderLayout.SOUTH);
+	// Layout-Manager für die einzelnen Optionen
+	JPanel misc_opt_panel = new JPanel(new GridLayout(4,1));
+	misc_opt_panel.add(spr);
+	misc_opt_panel.add(sys);
+	misc_opt_panel.add(swi);
+	//misc_opt_panel.add(aup);
+	misc_opt_panel.add(new JLabel());
+	
+	misc_north_panel.add(misc_opt_panel, BorderLayout.CENTER);
 	
 	misc_top_panel.add(misc_north_panel, BorderLayout.NORTH);
 	
@@ -288,7 +293,7 @@ implements ActionListener, KeyListener
   				value="metal";
   			}
   			if (Define.doDebug()) {
-  				Base.LogThis("Selektiert: " + value, true);
+  			    new Logger("Selektiert: " + value, true);
 			// L&F aktualisieren
 			conf.setLF(value);
 			wnd.updateLF();
@@ -316,8 +321,12 @@ implements ActionListener, KeyListener
 		
 		// Splashscreen aktivieren?
 		conf.setSplash(spr.isSelected());
-		// fenster-Infos speichern?
+		// Fenster-Infos speichern?
 		conf.setSaveWinInfo(swi.isSelected());
+		// AutoUpload?
+		conf.setAutoUpdate(aup.isSelected());
+		// Systray?
+		conf.setSystray(sys.isSelected());
 		// Dialog schließen
 		endDialog();
   	}

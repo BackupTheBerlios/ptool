@@ -6,6 +6,7 @@
 
 package de.partysoke.psagent.gui;
 
+import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -102,23 +103,23 @@ public class UploadDialog extends JDialog implements ActionListener
   
   
  
-  public void finish(int surc, String tmp) {
+  public void finish(int surc, StringWriter tmp) {
   	int action = surc;
   	this.button.setText("Schlie\u00DFen");
    	this.bar.setIndeterminate(false);
     this.bar.setString("Fehler");
   	
   	if (action == 1 && tmp != null) {
-  	    Base.showBox(parent, Define.getFailedEvent() + " " + tmp, 4);
+  	    Base.showBox(parent, Define.getFailedEvent() + tmp, 1);
   	}
   	else if (action == -1) {
   	    this.lab.setText(Define.getEventUploadOK());
   	    this.bar.setString("Abgeschlossen");
   	}
   	else if (action == -2) Base.showBox(parent, Define.getWrongUser(), 4);
-  	else if (action == -3) Base.showBox(parent, Define.getNoDBCon(), 4);
+  	else if (action == -3) Base.showBox(parent, Define.getNoDBCon(), 1);
   	else if (action == -4) Base.showBox(parent, Define.getMiscFailure(), 4);
-  	else if (action == -5) Base.showBox(parent, Define.getNoCon(), 4);
+  	else if (action == -5) Base.showBox(parent, Define.getNoCon(), 1);
 
   }
   

@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import de.partysoke.psagent.Define;
 import de.partysoke.psagent.util.*;
 
 
@@ -17,9 +18,11 @@ public class DetailsUser extends Details implements ActionListener {
 	
 	int id = 0;
 	ShowEvents owner;
+	MWnd parent;
 	
-	public DetailsUser(JFrame parent, int tmp_id, ShowEvents se) {
+	public DetailsUser(MWnd parent, int tmp_id, ShowEvents se) {
 		super(parent, tmp_id, se);
+		this.parent = parent;
 		owner = se;
 		id = tmp_id;
 	}
@@ -32,12 +35,18 @@ public class DetailsUser extends Details implements ActionListener {
 		if (event.getActionCommand().equals("L\u00F6schen")) {
 			//if () {
 			owner.userEvents = Base.deleteArrayElement(owner.userEvents, id);
-		    System.out.println("L\u00F6schen des Events war erfolgreich.");
+		    //System.out.println("L\u00F6schen des Events war erfolgreich.");
+			Base.setUserEventsCount();
+			parent.updateStatusBarEventlabel();
+
 			//}
 			//else {
 			//	System.out.println("L\u00F6schen des Events fehlgeschlagen, ID: " + id);
 			//	Base.showBox(this, "L\u00F6schen des Events fehlgeschlagen.", 1);
 			//}
+			if (Define.doDebug()) {
+			    new Logger("L\u00F6schen des Events war erfolgreich, ID: " + id);
+			}
 			owner.fillTable();
 			endDialog();
 	  	}

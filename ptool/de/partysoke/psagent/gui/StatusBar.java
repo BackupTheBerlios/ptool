@@ -34,7 +34,7 @@ public class StatusBar extends JPanel {
 	}
 
 	public void setEventLabel() {
-	    l_rechts.setText("Events: " + Base.getEventsCount() + " / Eigene Events: " + Base.getUserEventsCount());
+	    l_rechts.setText(" Events: " + Base.getEventsCount() + " / Eigene Events: " + Base.getUserEventsCount());
 	}
 	
 }

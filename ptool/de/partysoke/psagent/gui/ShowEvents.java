@@ -6,7 +6,6 @@
 
 package de.partysoke.psagent.gui;
 
-import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -71,9 +70,10 @@ implements ActionListener
 			new WindowAdapter() {
 				public void windowClosing(WindowEvent event)
 				{
-				    if (userEvents.length != startLength)
-					    writeEventsToFile();
-				    endDialog();
+				    if (userEvents.length != startLength) {
+					    Base.writeEventsToFile(userEvents);
+				    }
+					endDialog();
 				}
 			}
 		);
@@ -118,7 +118,7 @@ implements ActionListener
 	public void actionPerformed(ActionEvent event) {
 		if (event.getActionCommand().equals("Schlie\u00DFen")) {
 			if (userEvents.length != startLength)
-			    this.writeEventsToFile();
+			    Base.writeEventsToFile(userEvents);
 		    this.endDialog();
 		}
 		if (event.getActionCommand().equals("L\u00F6schen")) {
@@ -137,7 +137,7 @@ implements ActionListener
 					Base.setUserEventsCount();
 					parent.updateStatusBarEventlabel();
 					if (Define.doDebug()) {
-					    Base.LogThis("L\u00F6schen des Events war erfolgreich, ID: " 
+					    new Logger("L\u00F6schen des Events war erfolgreich, ID: " 
 						+ table.getSelectedRow(), true);
 					}
 					this.fillTable();
@@ -157,49 +157,5 @@ implements ActionListener
 		dispose();
 	}
 	
-	/**
-	 * Schreibt die aktuellen Events (ohne die gelöschten) in die user.dat
-	 *
-	 */
-	void writeEventsToFile() {
-	    // umbauen in base und teile auslagern nach FileIO
-	    String toAdd = "";
-	    FileOutputStream file;
-	    
-	    try {
-	        int l;
-	        String zeit;
-	        String cost;
-	        String text;
-	        for (int i=0; i < userEvents.length; i++) {
-	            l = userEvents[i].length;
-	            if (l > 10) zeit = userEvents[i][10];
-		        else zeit = "";
-	            if (l > 11) cost = userEvents[i][11];
-		        else cost = "";
-	            if (l > 12) text = userEvents[i][12];
-		        else text = "";
-		        
-	            // name|ort|plz|tag|monat|jahr|bands|kat|loc|orga|zeit|cost|text
-	            toAdd += userEvents[i][0] + "|" + userEvents[i][1] + "|" + userEvents[i][2] + "|" + userEvents[i][3] + 
-	            "|" + userEvents[i][4] + "|" + userEvents[i][5]+ "|" + userEvents[i][6] + "|" + userEvents[i][7] +
-	            "|" + userEvents[i][8] + "|" + userEvents[i][9] + "|" + zeit + "|" + cost + "|" + text + "\r\n";
-	        }
-	        
-	        //toAdd = toAdd.replaceAll("\r\n", "<br>");
-	    
-	        file = new FileOutputStream(Define.getUserEADFileName());
-	        file.write(toAdd.getBytes(Define.getEncoding()));
-	        file.close();
-	        if (Define.doDebug())
-	            Base.LogThis(Define.getUserEADFileName() + " wurde geschrieben.", true);
-	    }
-	    catch (Exception e) {
-	        Base.LogThis("Fehler beim Speichern der Events (UserEvents)", true);
-	        if (Define.doDebug())
-	            Base.LogThis(e.toString(), true);
-	    }		
-	
-	}
 	
 }

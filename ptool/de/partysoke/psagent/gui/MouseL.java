@@ -35,7 +35,7 @@ implements MouseListener
 				det = new DetailsMain(Start.getMe(), parentTable.getSelectedRow(), se);
 			}
 			if (Define.doDebug())
-				Base.LogThis("Details-Dialog ID: "+parentTable.getSelectedRow(), true);
+			    new Logger("Details-Dialog ID: "+parentTable.getSelectedRow(), true);
 			det.setVisible(true);
 				
 				

@@ -10,22 +10,33 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+
 class News
 extends Dialog
 implements ActionListener
 {
-	public News(JFrame parent, String newsText)
+	public News(JFrame parent, String[] newsText)
 	{
 		super(parent,"Neuigkeiten",true);
 		Point parloc = parent.getLocation();
-		setBounds(parloc.x + 30, parloc.y + 30,500,580);
+		setBounds(parloc.x + 30, parloc.y + 30,500,430);
 		setLayout(new BorderLayout());
 		//setResizable(false);
 		
 		// Die Labels
+		JPanel news_panel = new JPanel(new GridLayout(5,2));
+		JTextArea dings;
+		for (int i = 0; i < newsText.length; i++) {
+		    dings = new JTextArea(newsText[i]);
+		    dings.setLineWrap(true);
+		    news_panel.add(dings);
+		}
+		
+		
+		// Zusammensetzen
 		JLabel lab = new JLabel("PartySOKe.de - News",JLabel.CENTER);
 		JScrollPane spane = new JScrollPane(
-				new JLabel(newsText,JLabel.CENTER),
+				news_panel,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
 		);

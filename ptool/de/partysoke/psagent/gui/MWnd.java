@@ -7,6 +7,7 @@ package de.partysoke.psagent.gui;
 
 
 import java.awt.*;
+
 import javax.swing.*;
 import javax.swing.table.*;
 
@@ -22,7 +23,7 @@ import de.partysoke.psagent.util.*;
  */
 public class MWnd extends JFrame
 {
-	private JLabel label_bottom = new JLabel("Es sind noch keine Daten vorhanden, bitte Daten herunterladen (Strg+U). ", JLabel.LEFT);
+	private JLabel label_bottom = new JLabel(Define.getNoEvents(), JLabel.LEFT);
 	private static JTable table = new JTable();
   	private Config conf = Start.getConf();
   	private MWndHandler listener = new MWndHandler(true, this);
@@ -30,7 +31,11 @@ public class MWnd extends JFrame
 	private StatusBar statusBarPanel;
   	private boolean canceled = false;
   	private DefaultTableCellRenderer renders;
- 	
+    private JMenu ret_fm;
+    private JMenu ret_em;
+    private Systray systray;
+    private boolean systray_active;
+    
   	/**
   	 * Konstruktor, der das Fenster aufbaut und die Komponenten lädt
   	 */
@@ -77,10 +82,10 @@ public class MWnd extends JFrame
   	    // Tabelle mit Werten füllen, falls vorhanden
   	    //this.fillTable();
 
-	
+  	    
   	    // Statusbar
   	    statusBarPanel = new StatusBar(label_bottom);
-	
+  	      	    
   	    // Zusammensetzen
   	    getContentPane().add(label_panel, BorderLayout.NORTH);
   	    getContentPane().add(scrollp,BorderLayout.CENTER);
@@ -98,12 +103,26 @@ public class MWnd extends JFrame
   	    try {
   	        UIManager.setLookAndFeel(this.getLongLF(conf.getLF()));
   	    } catch (Exception e) { 
-  	        Base.LogThis("Look&Feel wurde nicht gefunden, Standard wird verwendet.", true);
+  	      new Logger("Look&Feel wurde nicht gefunden, Standard wird verwendet.", true);
   	    }
   	    SwingUtilities.updateComponentTreeUI(this);
-  	    Base.LogThis("Gew\u00E4hltes Look&Feel: " + conf.getLF(), true);
+  	  new Logger("Gew\u00E4hltes Look&Feel: " + conf.getLF(), true);
   	}
   
+  	/**
+  	 * lädt das Symbol in den Windows-Systray
+  	 */
+  	public void initSystray() {
+  	    if (conf.getSystray()) {
+  	        this.systray = new Systray(
+  	            this,
+  	            getToolkit().getImage(getClass().getResource(Define.TrayIcon))
+  	    		);
+  	        if (this.systray.isRunning()) systray_active = true;
+  	    }
+  	}
+  	
+  	
   	/**
   	 * Weißt dem aktuellen Fenster ein Icon zu
   	 */
@@ -141,7 +160,7 @@ public class MWnd extends JFrame
   	        statusBarPanel.setEventLabel();
   	    }
   	    else {
-  	        Base.LogThis("Fehler: Datenfile konnte nicht gelesen werden.", true);
+  	      new Logger("Fehler: Datenfile konnte nicht gelesen werden.", true);
   	    }
   	    table.getTableHeader().updateUI();
   	    System.gc();
@@ -200,6 +219,25 @@ public class MWnd extends JFrame
   	}
   
   	/**
+   	* Gibt das Objekt des ActionListeners zurück
+   	* @return listener
+   	*/
+  	public MWndHandler getListener() {
+      return listener;
+  	}
+  	
+    /**
+     * Gibt den Status des Systray-Symbols wieder (unter Windows true oder false,
+     * je nach Einstellung, unter Linux immer false)
+     * @return systray_active
+     */
+  	public boolean isSystray_active() {
+      return this.systray_active;
+  	}
+  	
+
+  
+  	/**
   	 * Gibt das Config-Objekt zurück
   	 * @return conf
   	 */
@@ -238,12 +276,42 @@ public class MWnd extends JFrame
   
 	/**
 	 * Liest die Daten für das Event-Label in der StatusBar neu ein
-	 *
+	 * und ruft updateFileMenu() auf.
 	 */
 	public void updateStatusBarEventlabel() {
 	    this.statusBarPanel.setEventLabel();
+	    updateFileMenuUE();
 	}
 	
+	/**
+	 * Liest den Status für den Menüpunkt "Eigene Events hochladen" und "Events ansehen"
+	 * neu ein
+	 */
+	public void updateFileMenuUE() {
+	    if (Base.getUserEventsCount() == 0) {
+	        this.ret_fm.getItem(1).setEnabled(false);
+	        this.ret_em.getItem(1).setEnabled(false);
+	    }
+	    else {
+	        this.ret_fm.getItem(1).setEnabled(true);
+	        this.ret_em.getItem(1).setEnabled(true);
+	    }
+	}
+	
+	/**
+	 * Liest den Status für den Menüpunkt "News lesen" neu ein
+	 */
+	public void updateFileMenuNews() {
+	    if (Base.getEventsCount() == 0) {
+	        this.ret_fm.getItem(0).setEnabled(false);
+	    }
+	    else {
+	        this.ret_fm.getItem(0).setEnabled(true);
+	    }
+	}
+	
+	
+    
 	/**
 	 * Schließt das Hauptfenster, und beendet das Programm.
 	 */
@@ -252,7 +320,8 @@ public class MWnd extends JFrame
 	    this.conf.setWinInfo(this.getBounds());
 	    this.conf.writeFile();
 		this.dispose();
-	    System.exit(0);
+		if (this.systray_active) systray.close();
+		System.exit(0);
 	}
   
 	/**
@@ -260,32 +329,33 @@ public class MWnd extends JFrame
 	 */
 	private JMenu createFileMenu()
 	{
-	    JMenu ret = new JMenu(Define.getOwnName());
-	    ret.setMnemonic('P');
+	    ret_fm = new JMenu(Define.getOwnName());
+	    ret_fm.setMnemonic('P');
 	    JMenuItem mi;
 	    // News
 	    mi = new JMenuItem("News lesen", 'e');
 	    setCtrlAccelerator(mi, 'N');
 	    mi.addActionListener(listener);
-	    ret.add(mi);
+	    ret_fm.add(mi);
 	    // Events-Update
 	    mi = new JMenuItem("Eigene Events hochladen", 'i');
 	    setCtrlAccelerator(mi, 'U');
 	    mi.addActionListener(listener);
-	    ret.add(mi);
+	    mi.setEnabled(false);
+	    ret_fm.add(mi);
 	    // Update
 	    mi = new JMenuItem("Daten herunterladen", 'a');
 	    setCtrlAccelerator(mi, 'D');
 	    mi.addActionListener(listener);
-	    ret.add(mi);
-	    ret.addSeparator();
+	    ret_fm.add(mi);
+	    ret_fm.addSeparator();
 	    // Beenden
 	    mi = new JMenuItem("Beenden", 'b');
 	    setCtrlAccelerator(mi, 'X');
 	    setAltAccelerator(mi, 'X');
 	    mi.addActionListener(listener);
-	    ret.add(mi);
-	    return ret;
+	    ret_fm.add(mi);
+	    return ret_fm;
 	}
   
 	/**
@@ -326,20 +396,20 @@ public class MWnd extends JFrame
 	 */
 	private JMenu createAddMenu()
 	{
-	    JMenu ret = new JMenu("Eigene Events");
-	    ret.setMnemonic('E');
+	    ret_em = new JMenu("Eigene Events");
+	    ret_em.setMnemonic('E');
 	    JMenuItem mi;
 	    // Eintragen
 	    mi = new JMenuItem("Event eintragen", 'e');
 	    setCtrlAccelerator(mi, 'E');
 	    mi.addActionListener(listener);
-	    ret.add(mi);
+	    ret_em.add(mi);
 	    // Ansehen
 	    mi = new JMenuItem("Events ansehen", 'a');
 	    setCtrlAccelerator(mi, 'A');
 	    mi.addActionListener(listener);
-	    ret.add(mi);
-	    return ret;
+	    ret_em.add(mi);
+	    return ret_em;
 	}
   
 	/**
@@ -412,5 +482,5 @@ public class MWnd extends JFrame
 	    mi.setAccelerator(ks);
 	}
   
-    	
+	
 }
