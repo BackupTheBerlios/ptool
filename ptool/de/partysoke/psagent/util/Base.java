@@ -39,7 +39,7 @@ public class Base {
 	public static boolean check_file(MWnd parent, Config config) {
 		File f1 = new File(Define.getEventsFile());
 		if (f1.exists()) {
-			inhalt=DownloadThread.code(FileIO.readFile(Define.getEventsFile(),false),config.getKey());
+			inhalt=DownloadThread.code(FileIO.readFile(Define.getEventsFile(),false),config.getConst());
 			eventsCount = parseArraySize(inhalt);
 			if (eventsCount>0) {
 				timeOfArray=inhalt.split("\n")[1];
@@ -224,7 +224,7 @@ public class Base {
 	public static String[] parseNews()
 	{
 		Config conf = Start.getConf();
-	    String source = DownloadThread.code(FileIO.readZippedFile(Define.getNewsFileName()),conf.getKey());
+	    String source = DownloadThread.code(FileIO.readZippedFile(Define.getNewsFileName()),conf.getConst());
 		String[] tmp = source.split("\\|");
 		String[] result = new String[(tmp.length/3)];
 		source = null;
@@ -250,7 +250,7 @@ public class Base {
 	public static StringBuffer parseNews2()
 	{
 		Config conf = Start.getConf();
-	    String source = DownloadThread.code(FileIO.readZippedFile(Define.getNewsFileName()),conf.getKey());
+	    String source = DownloadThread.code(FileIO.readZippedFile(Define.getNewsFileName()),conf.getConst());
 		String[] tmp = source.split("\\|");
 		source = null;
 
