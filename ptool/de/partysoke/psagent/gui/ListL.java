@@ -22,7 +22,7 @@ implements ListSelectionListener {
 	}
 	
 	public void valueChanged(ListSelectionEvent event) {
-		if (Define.doDebug>1) new Logger("Band-Auswahl: " + event.toString());
+		if (Define.doDebug>2) new Logger("Band-Auswahl: " + event.toString());
 		
 		if (parent.getListBnd().getSelectedIndex() == data.getBandsLastIndex()) {
 			parent.getTextBnd().setEditable(true);

@@ -136,7 +136,7 @@ public class DownDialog extends JDialog implements ActionListener
 		if (fail.equals("1")) action = -3;
 		else if (fail.equals("2")) action = -2;
 		else action = -5;
-		new Logger("setKey() == false");
+		new Logger("setConst() == false, Error: " + action);
 	}	
   	
   	if (action == -2) Base.showBox(parent, Define.getWrongUser(), 2);
