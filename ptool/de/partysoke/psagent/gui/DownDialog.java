@@ -118,10 +118,10 @@ public class DownDialog extends JDialog implements ActionListener
   }
   
  
-  public void finish(String key, String fail) {
+  public void finish(String data, String fail) {
   	int action = 0;
   	this.button.setText("Schlie\u00DFen");
-  	if (conf.setKey(key)) {
+  	if (conf.setConst(data)) {
   	  this.lab.setText("Fertig!");
 	}
 	else {
