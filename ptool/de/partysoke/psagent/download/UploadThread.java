@@ -7,7 +7,6 @@
 package de.partysoke.psagent.download;
 
 import java.io.*;
-import java.net.*;
 
 import de.partysoke.psagent.*;
 import de.partysoke.psagent.gui.*;
@@ -20,7 +19,7 @@ public class UploadThread extends DownloadThread {
     // Instanzvariablen
 	private UploadDialog parent;
 	private int rc = -4;
-	private String failed = "";
+	private StringWriter failed = new StringWriter();
     
 	
 	/**
@@ -33,7 +32,7 @@ public class UploadThread extends DownloadThread {
 
 	public void sendUserEvents() throws IOException {
 		
-	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    OutputStream out;
 	    String[] userEvents = 
 	        Base.parseUserEvents1D(
 	                FileIO.readFile(
@@ -42,41 +41,22 @@ public class UploadThread extends DownloadThread {
 	        );
 	    Config conf = Start.getConf();
 		
-	    URL url = new URL(addr+file3+Define.getVersionAsString()+ending+"?user="+conf.getUsername()+"&pass="+conf.getPassword()+"&nc=4");
-	    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-		con.setDoInput(true);
-		con.setDoOutput(true);
-		con.setRequestMethod("POST");
-		con.connect();
-
-		OutputStream os = con.getOutputStream();
-		    
 		String tmp = "";
 		for (int i=0; i < userEvents.length; i++) {
 		    userEvents[i] = userEvents[i].replaceAll("&", "und");
 		    tmp += "a" + i + "=" + userEvents[i] + "&";
 		}
-	    os.write(tmp.getBytes(Define.getEncoding()));
-		os.flush();   
-		os.close();
 
-		// Rückgabe des Scriptes
-		InputStream is = con.getInputStream();
-		if (is.available()>0) {
-		    int len;
-		    byte[] b = new byte[100];
-			while ((len = is.read(b)) != -1) {
-				out.write(b, 0, len);
-			}
-			out.close();
-		}
-	    is.close();
-
-	    if (Define.doDebug > 1) new Logger("HTTP Status-Code(sendUserEvents): " + con.getResponseCode());
-	    con.disconnect();
+	    out = NetIO.sendToUrlGetResponse(
+	            addr+file3+Define.getVersionAsString()+ending+"?user="+conf.getUsername()+"&pass="+conf.getPassword()+"&nc=4",
+	            Define.getUA(),
+	            tmp
+	    );
+	        
 
 	    if (out.toString().equals("-2")) rc = -2;
 	    else if (out.toString().equals("-3")) rc = -3;
+	    
 	    String[] failedEventsTemp =  out.toString().split("\\|");
 	    int[] failedEvents = new int[failedEventsTemp.length];
 	    failedEvents[0] = -4;
@@ -87,11 +67,11 @@ public class UploadThread extends DownloadThread {
 		    for (int x = 0; x < failedEventsTemp.length; x++) {
 		        failedEvents[x] = Integer.parseInt(failedEventsTemp[x]);
 		        tmpEvent = userEvents[x].split("\\|");
-		        failed += tmpEvent[0] + " in " + tmpEvent[1] + " am " + 
-		        			tmpEvent[3] + "." + tmpEvent[4] + "." + tmpEvent[5] + "\n";
+		        failed.write(tmpEvent[0] + " in " + tmpEvent[1] + " am " + 
+		        			tmpEvent[3] + "." + tmpEvent[4] + "." + tmpEvent[5] + "\n");
 		    }
 		}
-		catch (NumberFormatException e) { 
+		catch (RuntimeException e) { 
 		    if (Define.doDebug > 1) new Logger("sendUserEvents: " + e.toString());
 		}
 		
@@ -105,6 +85,8 @@ public class UploadThread extends DownloadThread {
 		else if (failedEvents[0] >= 0) {
 		    rc = 1;
 		    userEvents = Base.deleteArrayElements(userEvents, failedEvents);
+		    //DebugPrint.print_r(userEvents,"\n");
+		    Base.writeEventsToFile1D(userEvents);
 		}
 	}
 	
@@ -130,7 +112,7 @@ public class UploadThread extends DownloadThread {
 	    // Häßlich, aber man soll meinen schönen Dialog
 	    // wenigstens kurz auch bei schnellen Verbindungen sehen
 	    try {
-	        sleep(2000);
+	        sleep(1500);
 	    }
 	    catch (InterruptedException e) {
 	        if (Define.doDebug()) new Logger(e.toString());
@@ -144,9 +126,10 @@ public class UploadThread extends DownloadThread {
 			    new Logger("Exception beim Upload: " + e.toString(), true);
 		}
 		
-		if (this.running)
-		    this.parent.finish(rc, failed);
-
+		if (this.running) {
+		    if (this.parent != null) this.parent.finish(rc, failed);
+		}
+		
 		if (this.running)
 		    if (Define.doDebug())
 		        new Logger("Event-Upload fertig.", true);

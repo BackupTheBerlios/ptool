@@ -12,7 +12,7 @@ import de.partysoke.psagent.*;
 
 /**
  * Klasse zum Schreiben und Lesen von Dateien<br>
- * (Hier liegt fast das ganze IO-Handling)
+ * (Hier liegt (fast) das ganze IO-Handling)
  * 
  * @author Enrico Tröger
  */
@@ -201,13 +201,8 @@ public class FileIO {
 	
 	public static boolean deleteFile(String filename) {
 	    
-	    boolean success = false;
 	    File f = new File(filename);
-	   
-	    success = f.delete();
-	   
-	    return success;
-	    
+	    return f.delete();
 	}
 	
 	

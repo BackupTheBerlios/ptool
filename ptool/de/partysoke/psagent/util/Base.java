@@ -9,7 +9,6 @@ package de.partysoke.psagent.util;
 import java.io.*;
 import java.util.*;
 import java.text.*;
-import java.net.*;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
@@ -40,7 +39,7 @@ public class Base {
 	public static boolean check_file(MWnd parent, Config config) {
 		File f1 = new File(Define.getEventsFile());
 		if (f1.exists()) {
-			inhalt=DownloadThread.code(FileIO.readZippedFile(Define.getEventsFile()),config.getKey());
+			inhalt=DownloadThread.code(FileIO.readFile(Define.getEventsFile(),false),config.getKey());
 			eventsCount = parseArraySize(inhalt);
 			if (eventsCount>0) {
 				timeOfArray=inhalt.split("\n")[1];
@@ -83,25 +82,40 @@ public class Base {
 	 */
 	public static String getSystemInfos() {
 
-		String datum = getDate(Define.DATE_BOTH);
-		
-		String infos=
-		"System-Informationen:\r\nJava-Version: "+System.getProperty("java.version")+"\r\n"+
-		"Java-Vendor: "+System.getProperty("java.vendor")+"\r\n"+
-		"Class-Lib-Version: "+System.getProperty("java.class.version")+"\r\n"+
-		"VM-Version: "+System.getProperty("java.vm.version")+"\r\n"+
-		"VM-Vendor: "+System.getProperty("java.vm.vendor")+"\r\n"+
-		"Vm-Name: "+System.getProperty("java.vm.name")+"\r\n"+
-		"Java-Klassenpfad: "+System.getProperty("java.class.path")+"\r\n"+
-		"Extension-Verzeichnis: "+System.getProperty("java.ext.dirs")+"\r\n"+
-		"Java-Installions-Verz.: "+System.getProperty("java.home")+"\r\n"+
-		"File-Encoding: "+System.getProperty("file.encoding")+"\r\n"+
-		"OS: "+System.getProperty("os.name")+"\r\n"+
-		"OS-Version: "+System.getProperty("os.version")+"\r\n"+
-		"OS-Architektur: "+System.getProperty("os.arch")+"\r\n"+
-		"Aktuelles Verzeichnis: "+System.getProperty("user.dir")+"\r\n"+
-		"Datum: "+datum+"\r\n";
-		return infos;
+		StringBuffer infos = new StringBuffer();
+		infos.append("System-Informationen:\r\nJava-Version: ");
+		infos.append(System.getProperty("java.version"));
+		infos.append("\r\nJava-Vendor: ");
+		infos.append(System.getProperty("java.vendor"));
+		infos.append("\r\nClass-Lib-Version: ");
+		infos.append(System.getProperty("java.class.version"));
+		infos.append("\r\nVM-Version: ");
+		infos.append(System.getProperty("java.vm.version"));
+		infos.append("\r\nVM-Vendor: ");
+		infos.append(System.getProperty("java.vm.vendor"));
+		infos.append("\r\nVm-Name: ");
+		infos.append(System.getProperty("java.vm.name"));
+		infos.append("\r\nJava-Klassenpfad: ");
+		infos.append(System.getProperty("java.class.path"));
+		infos.append("\r\nExtension-Verzeichnis: ");
+		infos.append(System.getProperty("java.ext.dirs"));
+		infos.append("\r\nJava-Installions-Verz.: ");
+		infos.append(System.getProperty("java.home"));
+		infos.append("\r\nFile-Encoding: ");
+		infos.append(System.getProperty("file.encoding"));
+		infos.append("\r\nOS: ");
+		infos.append(System.getProperty("os.name"));
+		infos.append("\r\nOS-Version: ");
+		infos.append(System.getProperty("os.version"));
+		infos.append("\r\nOS-Architektur: ");
+		infos.append(System.getProperty("os.arch"));
+		infos.append("\r\nAktuelles Verzeichnis: ");
+		infos.append(System.getProperty("user.dir"));
+		infos.append("\r\nDatum: ");
+		infos.append(getDate(Define.DATE_BOTH));
+		infos.append("\r\n");
+
+		return infos.toString();
 	}
 	
 
@@ -125,14 +139,7 @@ public class Base {
 	 * @param type
 	 */
 	public static void showBox(String text, int type) {
-		int typ=4;
-		switch (type) {
-			case 1: typ=JOptionPane.ERROR_MESSAGE; break;
-			case 2: typ=JOptionPane.INFORMATION_MESSAGE; break;
-			case 3: typ=JOptionPane.QUESTION_MESSAGE; break;
-			case 4: typ=JOptionPane.WARNING_MESSAGE; break;
-		}
-		JOptionPane.showMessageDialog(null, text, Define.getOwnName() + " " + Define.getVersionAsString(),typ);
+	    showBox(null, text, type);
 	}
 
 	/**
@@ -167,12 +174,12 @@ public class Base {
 	 */
 	public static String getDate(int format) {
 		
-	    String result = "dd.MM.yyyy HH:MM:ss";
+	    String result = "dd.MM.yyyy HH:mm:ss";
 		
 		switch (format) {
 			case Define.DATE_DATE: result = "dd.MM.yyyy"; break;
-			case Define.DATE_TIME: result = "HH:MM:ss"; break;
-			case Define.DATE_BOTH: result = "dd.MM.yyyy HH:MM:ss"; break;
+			case Define.DATE_TIME: result = "HH:mm:ss"; break;
+			case Define.DATE_BOTH: result = "dd.MM.yyyy HH:mm:ss"; break;
 		}
 		GregorianCalendar cal = new GregorianCalendar();
 	    SimpleDateFormat sdf = new SimpleDateFormat(result);
@@ -208,73 +215,75 @@ public class Base {
 		return timeOfArray;
 	}
 	
-	/* PANIC es gibt keinen Aufrufer mehr *g*
-	public static String[][] parseEAD(String source) {
-		
-		// Anzahl der User-Events(=Array-Länge) ermitteln
-		StringTokenizer tok = new StringTokenizer(source, "\r\n");
-		int size = tok.countTokens();
-		System.out.println(size);
-		// Array deklarieren und initialisieren
-		//String[][] result = parseData(source, size); 
-		String[] tmp = new String[size];
-		String[][] result = new String[size][12];
-		tmp=source.split("\n");
-		for (int i=0; i < size; i++) {
-			result[i]=tmp[i].split("\\|");
-		}
-		
-		return result;
-		
-	}*/
-	
 	
 	/**
 	 * Zerlegt die Zeilen der News-Datei in ein Array.
 	 * @param source
 	 * @return result
 	 */
-	public static String parseNews()
+	public static String[] parseNews()
+	{
+		Config conf = Start.getConf();
+	    String source = DownloadThread.code(FileIO.readZippedFile(Define.getNewsFileName()),conf.getKey());
+		String[] tmp = source.split("\\|");
+		String[] result = new String[(tmp.length/3)];
+		source = null;
+
+		try {
+			int j = 0;
+		    for (int i = 0; i < (tmp.length-2); i += 3) {
+			result[j++] = tmp[i] + "   " + tmp[i+1] + "\n" + tmp[i+2];    
+			}
+		}
+		catch (RuntimeException e) { 
+		    if (Define.doDebug > 1) new Logger(e.toString());
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Zerlegt die Zeilen der News-Datei in ein Array.
+	 * @param source
+	 * @return result
+	 */
+	public static StringBuffer parseNews2()
 	{
 		Config conf = Start.getConf();
 	    String source = DownloadThread.code(FileIO.readZippedFile(Define.getNewsFileName()),conf.getKey());
 		String[] tmp = source.split("\\|");
 		source = null;
-		
-		if (Define.doDebug>2) {	// Debug-Mode
-			Base.LogThis(DebugPrint.print_all(tmp), true);
-		}
-		
-		String result="";
+
+		StringBuffer result = new StringBuffer();
 		try {
-			result = "<html><body>"+
-			"<table border=\"0\" cellpadding=\"2\" cellspacing=\"0\" align=\"left\" width=\"475\">"+
-			"<tr><td valign=\"top\"><font face=\"Verdana\"><b>Datum:</b></font></td>"+
-			"<td><font face=\"Verdana\">News-Text:</font></td></tr>"+
-			"<tr><td>&nbsp;</td><td></td></tr>"+
-			"<tr><td valign=\"top\"><font face=\"Verdana\"><b>"+tmp[0]+"</b></font></td>"+
-			"<td><font face=\"Verdana\"><i>"+tmp[1]+"</i></font></td></tr>"+
-			"<tr><td></td><td><font face=\"Verdana\">"+tmp[2]+"</font></td></tr>"+
-			"<tr><td>&nbsp;</td><td></td></tr>"+
-			"<tr><td valign=\"top\"><font face=\"Verdana\"><b>"+tmp[3]+"</b></font></td>"+
-			"<td><font face=\"Verdana\"><i>"+tmp[4]+"</i></font></td></tr>"+
-			"<tr><td></td><td><font face=\"Verdana\">"+tmp[5]+"</font></td></tr>"+
-			"<tr><td>&nbsp;</td><td></td></tr>"+
-			"<tr><td valign=\"top\"><font face=\"Verdana\"><b>"+tmp[6]+"</b></font></td>"+
-			"<td><font face=\"Verdana\"><i>"+tmp[7]+"</i></font></td></tr>"+
-			"<tr><td></td><td><font face=\"Verdana\">"+tmp[8]+"</font></td></tr>"+
-			"<tr><td>&nbsp;</td><td></td></tr>"+
-			"<tr><td valign=\"top\"><font face=\"Verdana\"><b>"+tmp[9]+"</b></font></td>"+
-			"<td><font face=\"Verdana\"><i>"+tmp[10]+"</i></font></td></tr>"+
-			"<tr><td></td><td><font face=\"Verdana\">"+tmp[11]+"</font></td></tr>"+
-			"<tr><td>&nbsp;</td><td></td></tr>"+
-			"<tr><td valign=\"top\"><font face=\"Verdana\"><b>"+tmp[12]+"</b></font></td>"+
-			"<td><font face=\"Verdana\"><i>"+tmp[13]+"</i></font></td></tr>"+
-			"<tr><td></td><td><font face=\"Verdana\">"+tmp[14]+"</font></td></tr>"+
-			"<tr><td>&nbsp;</td><td></td></tr>"+
-			"</table></body></html>";
+			result.append("<html><body>");
+			result.append("<table border=\"0\" cellpadding=\"2\" cellspacing=\"0\" align=\"left\" width=\"475\">");
+			result.append("<tr><td valign=\"top\"><font face=\"Verdana\"><b>Datum:</b></font></td>");
+			result.append("<td><font face=\"Verdana\">News-Text:</font></td></tr>");
+			result.append("<tr><td>&nbsp;</td><td></td></tr>");
+			result.append("<tr><td valign=\"top\"><font face=\"Verdana\"><b>"+tmp[0]+"</b></font></td>");
+			result.append("<td><font face=\"Verdana\"><i>"+tmp[1]+"</i></font></td></tr>");
+			result.append("<tr><td></td><td><font face=\"Verdana\">"+tmp[2]+"</font></td></tr>");
+			result.append("<tr><td>&nbsp;</td><td></td></tr>");
+			result.append("<tr><td valign=\"top\"><font face=\"Verdana\"><b>"+tmp[3]+"</b></font></td>");
+			result.append("<td><font face=\"Verdana\"><i>"+tmp[4]+"</i></font></td></tr>");
+			result.append("<tr><td></td><td><font face=\"Verdana\">"+tmp[5]+"</font></td></tr>");
+			result.append("<tr><td>&nbsp;</td><td></td></tr>");
+			result.append("<tr><td valign=\"top\"><font face=\"Verdana\"><b>"+tmp[6]+"</b></font></td>");
+			result.append("<td><font face=\"Verdana\"><i>"+tmp[7]+"</i></font></td></tr>");
+			result.append("<tr><td></td><td><font face=\"Verdana\">"+tmp[8]+"</font></td></tr>");
+			result.append("<tr><td>&nbsp;</td><td></td></tr>");
+			result.append("<tr><td valign=\"top\"><font face=\"Verdana\"><b>"+tmp[9]+"</b></font></td>");
+			result.append("<td><font face=\"Verdana\"><i>"+tmp[10]+"</i></font></td></tr>");
+			result.append("<tr><td></td><td><font face=\"Verdana\">"+tmp[11]+"</font></td></tr>");
+			result.append("<tr><td>&nbsp;</td><td></td></tr>");
+			result.append("<tr><td valign=\"top\"><font face=\"Verdana\"><b>"+tmp[12]+"</b></font></td>");
+			result.append("<td><font face=\"Verdana\"><i>"+tmp[13]+"</i></font></td></tr>");
+			result.append("<tr><td></td><td><font face=\"Verdana\">"+tmp[14]+"</font></td></tr>");
+			result.append("<tr><td>&nbsp;</td><td></td></tr>");
+			result.append("</table></body></html>");
 		}
-		catch (Exception e) {  }
+		catch (RuntimeException e) {  }
 		
 		return result;
 	}
@@ -288,8 +297,7 @@ public class Base {
 	}
 		
 	/**
-	 * Gibt die Anzahl der Events zurück, die in der User-Events-Tabelle sind
-	 * @return userEventsCount
+	 * Ließt die Anzahl der User-Events ein, die in der User-Events-Datei stehen
 	 */
 	public static void readUserEventsCount() {
 	    String source = FileIO.readFile(Define.getUserEADFileName(), false);
@@ -299,8 +307,6 @@ public class Base {
 	    else {
 	        userEventsCount = 0;
 	    }
-	    
-	    if (Define.doDebug > 1) Base.LogThis("userEventsCount: " + userEventsCount);
 	}
 	
 	/**
@@ -389,7 +395,7 @@ public class Base {
 		catch (Exception e) { error=4; }
 		
 		if (Define.doDebug() && error > 0) {	// Debug-Mode
-			Base.LogThis("Fehlercode: " + error, true);
+		    new Logger("Fehlercode: " + error, true);
 		}
 
 		if (error==0) {
@@ -400,13 +406,14 @@ public class Base {
 					result+=source.charAt(i+1);
 				}
 				if (Define.doDebug>1) {
-					Base.LogThis("Stellen der Eintragsanzahl: " + max, true);
-					Base.LogThis("Eintragsanzahl: " + result, true);
+				    new Logger("Stellen der Eintragsanzahl: " + max, true);
+				    new Logger("Eintragsanzahl: " + result, true);
 				}
 				return Integer.parseInt(result);
 			}
-			catch (Exception e) {
-				return -4;
+			catch (RuntimeException e) {
+				if (Define.doDebug > 1) new Logger(e.toString());
+			    return -4;
 			}
 		}
 		else {
@@ -420,6 +427,7 @@ public class Base {
 		}
 	}
 	
+
 	/**
 	 * Zerlegt die Zeilen des Datenfile (source) in ein 2D-Array anhand der Anzahl der Zeilen (size).
 	 * @param source
@@ -442,7 +450,7 @@ public class Base {
 			} 
 		}
 		if (Define.doDebug>2) {	// Debug-Mode
-			Base.LogThis(DebugPrint.print_all(result), true);
+		    new Logger(DebugPrint.print_all(result), true);
 		}
 		
 		tmp  = null;
@@ -474,24 +482,14 @@ public class Base {
 	}
 
 	
-	public static boolean getNewVersion() 
-	throws Exception {
-		String ver="";
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		URL url = new URL(DownloadThread.getVersionAddr());
-		InputStream in = url.openStream();
-		if (in.available()>0) {
-			int len;
-			byte[] b = new byte[100];
-			while ((len = in.read(b)) != -1) {
-				out.write(b,0,len);
-			}
-		}
-		in.close();
-		out.close();
-		ver=DownloadThread.code(out.toString(),17);
+	public static boolean getNewVersion() throws IOException {
+		OutputStream out = NetIO.getFromUrlToStream(
+		        DownloadThread.getVersionAddr(),
+		        Define.getUA()
+		        );
+		
+		String ver=DownloadThread.code(out.toString(),17);
 		out  = null;
-		in  = null;
 		
 		// Version analysieren
 		String[] tmp2 = ver.split(",");
@@ -515,28 +513,11 @@ public class Base {
 	/**
 	 * Holt Benutzer-Daten (eMail, Url, Teln.Nr.) vom Server und speichert sie.
 	 */
-	public static void getUserData() {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		try {
-			URL url = new URL(DownloadThread.getUserDataAddr());
-			InputStream in = url.openStream();
-			if (in.available()>0) {
-				int len;
-				byte[] b = new byte[100];
-				while ((len = in.read(b)) != -1) {
-					out.write(b,0,len);
-				}
-				b  = null;
-			}
-			in.close();
-			in  = null;
-			out.close();
-		} 
-		catch (IOException e) {
-			if (Define.doDebug()) {
-				Base.LogThis(e.toString(), true);
-			} 
-		}
+	public static void getUserData() throws IOException {
+		OutputStream out = NetIO.getFromUrlToStream(
+		        DownloadThread.getUserDataAddr(),
+		        Define.getUA());
+		
 		String[] tmp=DownloadThread.code(out.toString(),0).split("\\|");
 		Config conf = Start.getConf();
 		conf.seteMail(tmp[0]);
@@ -581,14 +562,14 @@ public class Base {
 	}
 
 	/**
-	 * Löscht alle Elemente mit einer ID aus id aus dem Array und verschiebt den Rest um eins nach vorn,
+	 * Löscht alle Elemente mit einer ID aus indezes aus dem Array und verschiebt den Rest um eins nach vorn,
 	 * so bleibt das Array konsistent
 	 * 
 	 * @param array
 	 * @param indezes
 	 * @return neues Array
 	 */
-	public static String[] deleteArrayElements(String[] array, int[] indezes) {
+	public static String[] deleteArrayElementsReverse(String[] array, int[] indezes) {
 	    if ((indezes.length >= 0) && (indezes.length <= array.length)) {
 	        int i, j = 0;
 	        String[] tmp = new String[array.length-indezes.length];
@@ -608,7 +589,7 @@ public class Base {
 	            }
 	        }
 	        catch(Exception e) { 
-	            if (Define.doDebug > 1) System.out.println("deleteArrayElements: "+e.toString());
+	            if (Define.doDebug > 1) new Logger(e.toString());
 	        }
 	        return tmp;
 		}
@@ -618,6 +599,85 @@ public class Base {
 		
 	}
 
+	/**
+	 * Behält alle Elemente des Arrays, deren Index in indezes steht
+	 * 
+	 * @param array
+	 * @param indezes
+	 * @return neues Array
+	 */
+	public static String[] deleteArrayElements(String[] array, int[] indezes) {
+	    if ((indezes.length >= 0) && (indezes.length <= array.length)) {
+	        int x, i, j = 0;
+	        String[] tmp = new String[indezes.length];
+		    
+	        try {
+	            for (i = 0; i < array.length; i++) {
+	                for (j = 0; j < indezes.length; j++) {
+	    	            if (i == indezes[j]) {
+	    	                tmp[j] = array[i];
+	    	                j++;
+	    	            }
+			    	}
+	            }
+	        }
+	        catch(Exception e) { 
+	            if (Define.doDebug > 1) new Logger(e.toString());
+	        }
+	        return tmp;
+		}
+		else {
+			return new String[0];
+		}
+		
+	}
+
+	/**
+	 * Schreibt die aktuellen Events (ohne die gelöschten) in die user.dat
+	 *
+	 */
+	public static void writeEventsToFile(String[][] userEvents) {
+	    StringWriter toAdd = new StringWriter();
+	    
+	    int l;
+	    String zeit;
+	    String cost;
+	    String text;
+	    for (int i=0; i < userEvents.length; i++) {
+	        l = userEvents[i].length;
+	        if (l > 10) zeit = userEvents[i][10];
+		    else zeit = "";
+	        if (l > 11) cost = userEvents[i][11];
+		    else cost = "";
+	        if (l > 12) text = userEvents[i][12];
+		    else text = "";
+		        
+	        // name|ort|plz|tag|monat|jahr|bands|kat|loc|orga|zeit|cost|text
+	        toAdd.write(userEvents[i][0] + "|" + userEvents[i][1] + "|" + userEvents[i][2] + "|" + userEvents[i][3] + 
+	        "|" + userEvents[i][4] + "|" + userEvents[i][5]+ "|" + userEvents[i][6] + "|" + userEvents[i][7] +
+	        "|" + userEvents[i][8] + "|" + userEvents[i][9] + "|" + zeit + "|" + cost + "|" + text + "\r\n");
+	    }
+	        
+	    //toAdd = toAdd.replaceAll("\r\n", "<br>");
+	    FileIO.writeToFile(Define.getUserEADFileName(), toAdd.toString());
+	
+	}
+
+	/**
+	 * Schreibt die aktuellen Events (ohne die fehlerhaften) in die user.dat
+	 *
+	 */
+	public static void writeEventsToFile1D(String[] userEvents) {
+	    StringWriter toAdd = new StringWriter();
+	    
+	    for (int i=0; i < userEvents.length; i++) {
+	        toAdd.write(userEvents[i] + "\r\n");
+	    }
+	        
+	    //toAdd = toAdd.replaceAll("\r\n", "<br>");
+	    FileIO.writeToFile(Define.getUserEADFileName(), toAdd.toString());
+	
+	}
 
 	
 	/**
@@ -630,17 +690,28 @@ public class Base {
 		if (!f.exists()) {
 			if (f.mkdir()) {
 				if (Define.doDebug()) 
-					LogThis("Verzeichnis " + Define.homeDir() + " erfolgreich angelegt.", true);
+				    new Logger("Verzeichnis " + Define.homeDir() + " erfolgreich angelegt.", true);
 			}
 			else {
 				if (Define.doDebug()) 
-					LogThis("Verzeichnis " + Define.homeDir() + " konnte nicht angelegt werden.",true);
+				    new Logger("Verzeichnis " + Define.homeDir() + " konnte nicht angelegt werden.",true);
 			}
 		}
 	  	
 	}
 
-	
+    /**
+     * Findet grob das Betriebssystem
+     * @return os
+     */
+	public static final int getOS() {
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.indexOf("windows") >= 0) return Define.WINDOWS_OS;
+        if (os.indexOf("linux") >= 0) return Define.LINUX_OS;
+        return Define.OTHER_OS;
+    }
+
+
 	/**
 	 * Generiert n Zufallszahlen und gibt sie in einem Int-Array zurück.
 	 * @param Anzahl der Zahlen
@@ -664,7 +735,7 @@ public class Base {
 		try {
 			if (Base.getNewVersion()) {
 				if (Define.doDebug())
-					Base.LogThis("Neue Version verf\u00FCgbar: " + Start.getNewVersionAsString(),false);
+				    new Logger("Neue Version verf\u00FCgbar: " + Start.getNewVersionAsString(),false);
 				String msg="Es ist eine neue " + Define.getOwnName() + "-Version verf\u00FCgbar: "+Start.getNewVersionAsString()+"\nSchaue bitte auf " + Define.getUrl_self() + ", um die neue Version herunterzuladen.";
 				Base.showBox(parent, msg, 2);
 			}
@@ -674,51 +745,13 @@ public class Base {
 		}
 		catch (Exception e) { 
 			if (Define.doDebug>1)
-				Base.LogThis("Exception bei Versions-Kontrolle: " + e, true);
+			    new Logger("Exception bei Versions-Kontrolle: " + e, true);
 			Base.showBox(parent, Define.getNoCon(), 2);
 		}
 
 	}
 
 
-	/**
-	 * Gibt text aus, wenn show gesetzt ist, und schreibt text in die Log-Datei
-	 * @param text
-	 * @param show
-	 */
-	public static void LogThis(String text, boolean show) {
-		if (Define.doDebug()) {
-		    StringWriter tmp = FileIO.readFileToWriter(Define.getDebugFileName(), false);
-		    if (show) {
-		        tmp.write(getDate(Define.DATE_BOTH) + ": " + text + "\r\n");
-		        System.out.println(text);
-		    }
-		    else
-		        tmp.write(text + "\r\n");
-		    FileIO.writeToFile(Define.getDebugFileName(), tmp.toString(), false);
-		}
-		else
-		    System.out.println(text);
-	}
-	
-	/**
-	 * Gibt text aus und schreibt text in die Log-Datei
-	 * @param text
-	 * @param show
-	 */
-	public static void LogThis(String text) {
-	    LogThis(String.valueOf(text), true);
-	}
-	
-	/**
-	 * Gibt text aus und schreibt text in die Log-Datei
-	 * @param text
-	 * @param show
-	 */
-	public static void LogThis(int text) {
-	    LogThis(String.valueOf(text), true);
-	}
-	
 
 	/**
 	 * Ändert die Groessen aller Spalten, so dass alle Werte komplett sichtbar 

@@ -34,6 +34,9 @@ public class Define {
 	/** Url der Anwendung */
 	private static final String url_self = "http://psagent.PartySOKe.de";
 	
+	/** User-Agent(für HTTP-Verbindungen) der Anwendung */
+	private static final String ua = "Mozilla/5.0 " + ownName + "/" + getVersionAsString();
+	
 	/** Bezeichnungen der Spalten der Events-Tabelle */
 	private static final String[] spalten = { "Name","Ort","Datum","Kategorie","Band(s)" };
 	
@@ -82,7 +85,13 @@ public class Define {
 	private static final String wrongData = "Es ist ein Fehler beim Verarbeiten der Daten aufgetreten.";
 
     /** Meldung bei Fehler beim Event-Eintragen */
-	private static final String failedEvent = "Event-Update: Folgende Events konnten nicht eingetragen werden:\n";
+	private static final String failedEvent = "Folgende Events konnten nicht eingetragen werden:\n";
+
+	/** Meldung bei Erfolg beim Event-Eintragen */
+	private static final String goodEvent = "Alle Events wurden erfolgreich eingetragen.";
+
+	/** Meldung, wenn noch keine Events vorhanden */
+	private static final String noEvents = 	"Es sind noch keine Daten vorhanden, bitte Daten herunterladen (Strg+U).";
 
     
     
@@ -121,11 +130,24 @@ public class Define {
     public static final int DATE_MINUTE = 8;
     public static final int DATE_SECOND = 9;
 
+    public static final int EVENTDOWNLOAD = 0;
+    public static final int EVENTUPLOAD = 1;
+
+    private static final String EventDownloadTitle = "Daten herunterladen";
+    private static final String EventUploadTitle = "Eigene Events hochladen";
+    
     public static final String ImageIcon = "images/icon.jpg";
+    public static final String TrayIcon = "images/tray.jpg";
     public static final String ImageSplash = "images/splash.jpg";
     
     
-    
+    /** Konstante, falls das OS Windows ist  */
+    public static final int WINDOWS_OS = 0;
+    /** Konstante, falls das OS Linux ist  */
+    public static final int LINUX_OS = 1;
+    /** Konstante, falls das OS weder Windows noch Linux ist  */
+    public static final int OTHER_OS = 2;
+
     
     /*
      * Getter-Methoden für die Konstanten 
@@ -334,34 +356,74 @@ public class Define {
     public static String getUNIX_ALT3_PATH() {
         return UNIX_ALT3_PATH;
     }
+    
     /**
      * @return Returns the UNIX_FLAG.
      */
     public static String getUNIX_FLAG() {
         return UNIX_FLAG;
     }
+    
     /**
      * @return Returns the UNIX_PATH.
      */
     public static String getUNIX_PATH() {
         return UNIX_PATH;
     }
+    
     /**
      * @return Returns the WIN_FLAG.
      */
     public static String getWIN_FLAG() {
         return WIN_FLAG;
     }
+    
     /**
      * @return Returns the WIN_ID.
      */
     public static String getWIN_ID() {
         return WIN_ID;
     }
+    
     /**
      * @return Returns the WIN_PATH.
      */
     public static String getWIN_PATH() {
         return WIN_PATH;
+    }
+
+    /**
+     * Gibt den Titel des Update-Dialogs in Abhängigkeit von dem Modus
+     * (Events runterladen, hochladen)
+     * @param mode
+     * @return Titel
+     */
+    public static String getUpdateTitle(int mode) {
+        if (mode == Define.EVENTDOWNLOAD) return EventDownloadTitle;
+        else return EventUploadTitle;
+    }
+
+    
+    /**
+     * @return Returns the goodEvent.
+     */
+    public static String getEventUploadOK() {
+        return goodEvent;
+    }
+
+    
+    /**
+     * @return Returns the noEvents.
+     */
+    public static String getNoEvents() {
+        return noEvents;
+    }
+
+    
+    /**
+     * @return Returns the ua.
+     */
+    public static String getUA() {
+        return ua;
     }
 }

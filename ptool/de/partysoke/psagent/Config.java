@@ -5,6 +5,7 @@
 package de.partysoke.psagent;
 
 import java.security.*;
+import java.io.*;
 import java.awt.*;
 
 import de.partysoke.psagent.download.*;
@@ -21,6 +22,9 @@ public class Config {
     /** Name des Programms */
     private final String name = Define.getOwnName();
 
+    /** OS-Ermittlung */
+    private String sys = Base.getOS() == Define.WINDOWS_OS ? "1" : "0"; 
+    
     /** 
      * 2D-String-Array, beinhaltet alle Config-Variablen, Struktur:<br>
      * [section][key][value]
@@ -30,7 +34,9 @@ public class Config {
 			{ name, "lf", "win"},
 			{ name, "wininfo", Define.getWininfo()},
 			{ name, "win_save", "1"},
+			{ name, "auto_upload", "0"},
 			{ name, "splash", "1"},
+			{ name, "systray", sys},
 			{ name, "username", ""},
 			{ name, "password", ""},
 			{ name, "email", ""},
@@ -53,10 +59,10 @@ public class Config {
 			for (int i = 0; i < values.length; i++) 
 			    values[i][2]=ini.getPropertyString(values[i][0], values[i][1], values[i][2]);
 		} 
-		catch (Exception e) {
+		catch (IOException e) {
 		    if (Define.doDebug()) {
-		        Base.LogThis("Fehler: Config konnte nicht gelesen werden.", true);
-		        Base.LogThis(e.toString(), true);
+		        new Logger("Fehler: Config konnte nicht gelesen werden.", true);
+		        new Logger(e.toString(), true);
 		    }
 		}
 
@@ -73,8 +79,8 @@ public class Config {
 	    }
 	    catch(Exception e) {
 		    if (Define.doDebug()) {
-		        Base.LogThis("Warnung: Config enthielt Fehler (wininfo).", true);
-		        Base.LogThis(e.toString(), true);
+		        new Logger("Warnung: Config enthielt Fehler (wininfo).", true);
+		        new Logger(e.toString(), true);
 		    }
 	        String[] tmp_2 = Define.getWininfo().split(",");
 	        return new Rectangle(Integer.parseInt(tmp_2[0]),Integer.parseInt(tmp_2[1]),Integer.parseInt(tmp_2[2]),Integer.parseInt(tmp_2[3]));
@@ -95,7 +101,7 @@ public class Config {
 	 * @return telnr
 	 */
 	public String getTelNr() {
-		return values[9][2];
+		return values[11][2];
 	}
 	
 	/**
@@ -104,7 +110,7 @@ public class Config {
 	 */
 	public void setTelNr(String telnr) {
 		if (telnr.length()>0) {
-		    values[9][2]=telnr;
+		    values[11][2]=telnr;
 		}
 	}
 	
@@ -113,8 +119,8 @@ public class Config {
 	 * @return splash
 	 */
 	public boolean getSplash() {
-	    if (values[4][2].equals("0")) return false;
-	    return true;
+	    if (values[5][2].equals("0")) return false;
+	    else return true;
 	}
 	
 	/**
@@ -122,8 +128,44 @@ public class Config {
 	 * @param show
 	 */
 	public void setSplash(boolean show) {
-		if (show) values[4][2]="1";
+		if (show) values[5][2]="1";
+		else values[5][2]="0";
+	}
+	
+	/**
+	 * userEvents bei Download uploaden?
+	 * @return update
+	 */
+	public boolean getAutoUpdate() {
+	    if (values[4][2].equals("0")) return false;
+	    else return true;
+	}
+	
+	/**
+	 * userEvents bei Download uploaden?
+	 * @param update
+	 */
+	public void setAutoUpdate(boolean update) {
+		if (update) values[4][2]="1";
 		else values[4][2]="0";
+	}
+	
+	/**
+	 * userEvents bei Download uploaden?
+	 * @return update
+	 */
+	public boolean getSystray() {
+	    if (values[6][2].equals("0")) return false;
+	    else return true;
+	}
+	
+	/**
+	 * userEvents bei Download uploaden?
+	 * @param update
+	 */
+	public void setSystray(boolean update) {
+		if (update) values[6][2]="1";
+		else values[6][2]="0";
 	}
 	
 	/**
@@ -149,7 +191,7 @@ public class Config {
 	 * @return homepage
 	 */
 	public String getUrl() {
-		return values[8][2];
+		return values[10][2];
 	}
 	
 	/**
@@ -158,7 +200,7 @@ public class Config {
 	 */
 	public void setUrl(String url) {
 		if (url.length()>0) {
-		    values[8][2]=url;
+		    values[10][2]=url;
 		}
 	}
 	
@@ -167,7 +209,7 @@ public class Config {
 	 * @return email
 	 */
 	public String geteMail() {
-		return values[7][2];
+		return values[9][2];
 	}
 	
 	/**
@@ -176,7 +218,7 @@ public class Config {
 	 */
 	public void seteMail(String email) {
 		if (email.length()>0) {
-		    values[7][2]=email;
+		    values[9][2]=email;
 		}
 	}
 	
@@ -185,38 +227,6 @@ public class Config {
 	 * @return proxyHost
 	 */
 	public String getProxyHost() {
-		return values[10][2];
-	}
-	
-	/**
-	 * Setzt den ProxyHost
-	 * @param proxyHost
-	 */
-	public void setProxyHost(String proxyHost) {
-	    values[10][2]=proxyHost;
-	}
-	
-	/**
-	 * Gibt den in der INI-Datei gespeicherten ProxyHost zurück
-	 * @return proxyHost
-	 */
-	public String getProxyPort() {
-		return values[11][2];
-	}
-	
-	/**
-	 * Setzt den ProxyPort
-	 * @param proxyPort
-	 */
-	public void setProxyPort(String proxyPort) {
-	    values[11][2]=proxyPort;
-	}
-	
-	/**
-	 * Gibt den in der INI-Datei gespeicherten ProxyUser zurück
-	 * @return proxyUser
-	 */
-	public String getProxyUser() {
 		return values[12][2];
 	}
 	
@@ -224,8 +234,40 @@ public class Config {
 	 * Setzt den ProxyHost
 	 * @param proxyHost
 	 */
+	public void setProxyHost(String proxyHost) {
+	    values[12][2]=proxyHost;
+	}
+	
+	/**
+	 * Gibt den in der INI-Datei gespeicherten ProxyHost zurück
+	 * @return proxyHost
+	 */
+	public String getProxyPort() {
+		return values[13][2];
+	}
+	
+	/**
+	 * Setzt den ProxyPort
+	 * @param proxyPort
+	 */
+	public void setProxyPort(String proxyPort) {
+	    values[13][2]=proxyPort;
+	}
+	
+	/**
+	 * Gibt den in der INI-Datei gespeicherten ProxyUser zurück
+	 * @return proxyUser
+	 */
+	public String getProxyUser() {
+		return values[14][2];
+	}
+	
+	/**
+	 * Setzt den ProxyHost
+	 * @param proxyHost
+	 */
 	public void setProxyUser(String proxyUser) {
-	    values[12][2]=proxyUser;
+	    values[14][2]=proxyUser;
 	}
 	
 	/**
@@ -233,7 +275,7 @@ public class Config {
 	 * @return proxyUser
 	 */
 	public String getProxyPass() {
-		return values[13][2];
+		return values[15][2];
 	}
 	
 	/**
@@ -241,7 +283,7 @@ public class Config {
 	 * @param proxyHost
 	 */
 	public void setProxyPass(String proxyPass) {
-	    values[13][2]=proxyPass;
+	    values[15][2]=proxyPass;
 	}
 	
 	/**
@@ -249,7 +291,7 @@ public class Config {
 	 * @return password
 	 */
 	public String getPassword() {
-		return values[6][2];
+		return values[8][2];
 	}
 
 	/**
@@ -264,11 +306,11 @@ public class Config {
 				byte[] tmp = md.digest();
 				String new_pw="";
 				for (int i = 0; i < tmp.length; ++i) {	new_pw+=Base.toHexString(tmp[i]); }
-				values[6][2]=new_pw;
+				values[8][2]=new_pw;
 			}
-			catch (Exception e) { 
+			catch (NoSuchAlgorithmException e) { 
 				if (Define.doDebug()) { 
-					Base.LogThis(e.toString(), true);
+				    new Logger(e.toString(), true);
 				}
 			}
 		}
@@ -279,7 +321,7 @@ public class Config {
 	 * @return username
 	 */
 	public String getUsername() {
-		return values[5][2];
+		return values[7][2];
 	}
 	
 	/**
@@ -288,7 +330,7 @@ public class Config {
 	 */
 	public void setUsername(String user) {
 		if (user.length()>4) {
-		    values[5][2]=user;
+		    values[7][2]=user;
 		}
 	}
 	
@@ -319,8 +361,8 @@ public class Config {
 		}
 		catch (Exception e) {
 			if (Define.doDebug>1) {
-				Base.LogThis("Failed Key: " + values[0][2], true);
-				Base.LogThis(e.toString(), true);
+			    new Logger("Failed Key: " + values[0][2], true);
+			    new Logger(e.toString(), true);
 			}
 			return 0;
 		}
@@ -335,7 +377,7 @@ public class Config {
 		if (!key.equals("")) {
 		    values[0][2]=DownloadThread.getKeyToSave(key);
 			if (Define.doDebug>1) {	// Debug-Mode
-				Base.LogThis("saved Key:" + values[0][2], true);
+			    new Logger("saved Key:" + values[0][2], true);
 			}
 			return true;
 		}
@@ -351,15 +393,14 @@ public class Config {
 		try {
 		    IniWriter ini = new IniWriter(values, Define.getConfigFilename());
 		    ini.close();
-			if (Define.doDebug())
-			    Base.LogThis("Einstellungen gespeichert.",true);
+			new Logger("Einstellungen gespeichert.",true);
 		}
 		catch (Exception e) {
-			Base.LogThis("Speichern fehlgeschlagen",true);
+		    new Logger("Speichern fehlgeschlagen",true);
 			if (Define.doDebug>1) {	// Debug-Mode
-				Base.LogThis(" (" + e.toString() + ")", true);
+			    new Logger(" (" + e.toString() + ")", true);
 			}
-			Base.LogThis(".", true);
+			new Logger(".", true);
 		}
 	
 	}
