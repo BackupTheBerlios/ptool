@@ -16,7 +16,7 @@ public class Define {
     private static final String ownName = "PSAgent";
 	
 	/** festgelegtes Debuglevel (Release = 0, Beta = 1, Devel = 2|3) */
-	public static int doDebug=2;
+	public static int doDebug=1;
 	
     /** Version der Anwendung */
 	private static final int[] version = { 1 , 0 , 0 };
@@ -139,6 +139,7 @@ public class Define {
     public static final String ImageIcon = "images/icon.jpg";
     public static final String TrayIcon = "images/tray.jpg";
     public static final String ImageSplash = "images/splash.jpg";
+    public static final String ImageAbout = "images/about.jpg";
     
     
     /** Konstante, falls das OS Windows ist  */
