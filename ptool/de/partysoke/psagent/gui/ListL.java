@@ -2,11 +2,13 @@
  * Created on 28.02.2004
  * by Enrico Tröger
  */
+
 package de.partysoke.psagent.gui;
 
 import javax.swing.event.*;
 
 import de.partysoke.psagent.*;
+import de.partysoke.psagent.util.*;
 
 public class ListL
 implements ListSelectionListener {
@@ -20,9 +22,9 @@ implements ListSelectionListener {
 	}
 	
 	public void valueChanged(ListSelectionEvent event) {
-		if (Define.doDebug>1) System.out.println(event.toString());
+		if (Define.doDebug>1) new Logger("Band-Auswahl: " + event.toString());
 		
-		if (event.getLastIndex() == data.getBandsLastIndex()) {
+		if (parent.getListBnd().getSelectedIndex() == data.getBandsLastIndex()) {
 			parent.getTextBnd().setEditable(true);
 		}
 		else {
