@@ -43,6 +43,7 @@ implements ActionListener
 	public AddWndStep2(MWnd parent_tmp, GetAddData gdata, AddData adata) {
 		super(parent_tmp,"Event eintragen (2)",true);
     	AddWndStep2Layout customLayout = new AddWndStep2Layout();
+    	this.setLocation(parent_tmp.getConfig().getWinInfoUE());
 		
     	parent = parent_tmp;
 		adddata = adata;
@@ -202,6 +203,7 @@ implements ActionListener
 	{
 		setVisible(false);
 		dispose();
+		parent.getConfig().setWinInfoUE(this.getLocation());
 		//((Window)getParent()).toFront();
 		//getParent().requestFocus();
 	}

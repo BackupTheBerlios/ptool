@@ -16,7 +16,7 @@ public class Define {
     private static final String ownName = "PSAgent";
 	
 	/** festgelegtes Debuglevel (Release = 0, Beta = 1, Devel = 2|3) */
-	public static int doDebug=1;
+	public static int doDebug=2;
 	
     /** Version der Anwendung */
 	private static final int[] version = { 1 , 0 , 0 };
@@ -42,6 +42,9 @@ public class Define {
 	
 	/** Default-Position des Fensters */
     private static final String wininfo = "50,50,650,600";
+
+	/** Default-Position des Eintrags-Fensters */
+    private static final String wininfo_ue = "100,100";
 
 
     /** Home-Dir, wo die Daten-Dateien und Einstellungen gespeichert werden */
@@ -335,8 +338,15 @@ public class Define {
     /**
      * @return Returns the wininfo.
      */
-    public static String getWininfo() {
+    public static String getWinInfo() {
         return wininfo;
+    }
+
+    /**
+     * @return Returns the wininfo.
+     */
+    public static String getWinInfoUE() {
+        return wininfo_ue;
     }
 
     /**
